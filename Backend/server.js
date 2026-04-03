@@ -11,7 +11,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
@@ -25,7 +24,6 @@ const octokit = new Octokit({
   auth: GITHUB_TOKEN || undefined,
 });
 
-const app = express();
 app.use(cors());
 app.use(express.json());
 
