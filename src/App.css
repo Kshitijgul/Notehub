@@ -1,0 +1,41 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background: #111827;
+  color: white;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+}
+
+.sidebar h3 {
+  margin-top: 15px;
+}
+
+.file {
+  cursor: pointer;
+  padding: 5px;
+  margin-left: 10px;
+}
+
+.file:hover {
+  background: #374151;
+}
+
+.viewer {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}

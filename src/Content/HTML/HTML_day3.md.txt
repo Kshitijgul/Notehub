@@ -1,0 +1,3682 @@
+Perfect! Here is the complete, combined single file with all 3 days of HTML notes. It's fully self-contained, has a combined table of contents, and maintains 100% of the original content, formatting and quality.
+
+You can save this as `html-complete-notes.md` and it will work perfectly in any markdown viewer, GitHub, Obsidian, etc.
+
+
+---
+
+# 📘 Complete HTML Master Notes
+
+> 3 Day Complete Guide | Interview Ready | Production Ready
+>
+> This is the complete combined version of Day 1, Day 2 and Day 3 HTML notes, covering 100% of HTML fundamentals, advanced features, best practices and interview questions.
+
+
+---
+
+## Table of Contents
+
+### Day 1: HTML Fundamentals
+1. [HTML Document Structure](#1-html-document-structure)
+2. [Text Elements](#2-text-elements)
+3. [Hyperlinks](#3-hyperlinks)
+4. [Images](#4-images)
+5. [Media Elements](#5-media-elements)
+6. [Text Formatting](#6-text-formatting)
+7. [Span and Div](#7-span-and-div)
+8. [Lists](#8-lists)
+9. [Tables](#9-tables)
+10. [Day 1 Interview Questions](#10-day-1-interview-questions--answers)
+
+### Day 2: Buttons, Forms & Semantic HTML
+1. [Buttons](#1-buttons)
+2. [Forms - Complete Guide](#2-forms---complete-guide)
+3. [Semantic Tags](#3-semantic-tags)
+4. [Day 2 Interview Questions](#4-day-2-interview-questions--answers)
+
+### Day 3: Advanced HTML & Best Practices
+1. [Core HTML Fundamentals](#1-core-html-fundamentals)
+2. [Essential HTML Features](#2-essential-html-features)
+3. [Advanced Form Features](#3-advanced-form-features)
+4. [Best Practices & Common Mistakes](#4-best-practices--common-mistakes)
+5. [Day 3 Interview Questions](#5-day-3-interview-questions--answers)
+
+
+---
+
+
+---
+
+# 📘 HTML Day 1 Notes
+
+> **Topics Covered:** Doctype, HTML Boilerplate, Text Elements, Hyperlinks, Images, Media, Text Formatting, Span & Div, Lists, Tables, Interview Questions
+
+
+---
+
+## 1. HTML Document Structure
+
+### 1.1 Doctype Declaration
+
+The doctype is the very first line of any HTML document. It tells the browser which version of HTML to use to render the page.
+
+```html
+<!-- HTML5 Doctype (the only one you need to know) -->
+<!DOCTYPE html>
+```
+
+**What it does:**
+- Triggers standards mode in browsers
+- Prevents browsers from using "quirks mode" which renders pages incorrectly
+- Case insensitive, but always written as `<!DOCTYPE html>` by convention
+
+> ❌ If you omit the doctype, browsers will render the page in quirks mode, which can cause unexpected layout and behavior issues.
+
+
+---
+
+### 1.2 Complete HTML5 Boilerplate Explained
+
+```html
+<!DOCTYPE html>                 <!-- Tells browser to use HTML5 standards mode -->
+<html lang="en">                <!-- Root element of the page, lang attribute for accessibility and SEO -->
+<head>                          <!-- Contains metadata about the document (not visible to user) -->
+  <meta charset="UTF-8">        <!-- Character encoding for the document (UTF-8 supports all languages) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- Makes page responsive on mobile -->
+  <title>Page Title</title>     <!-- Title that appears in browser tab and search results -->
+  <link rel="icon" href="favicon.ico"> <!-- Favicon for the page -->
+</head>
+<body>                          <!-- Contains all visible content of the page -->
+  <!-- Page content goes here -->
+</body>
+</html>
+```
+
+#### Boilerplate Line by Line Explanation:
+
+| Line | Purpose |
+|------|---------|
+| `<!DOCTYPE html>` | Triggers standards mode |
+| `<html lang="en">` | Root element, `lang` attribute is critical for screen readers and SEO |
+| `<head>` | Container for metadata, links, scripts, styles |
+| `<meta charset="UTF-8">` | Defines character encoding, should always be UTF-8 |
+| `<meta name="viewport">` | Enables responsive design, absolutely required for mobile |
+| `<title>` | Page title, one of the most important elements for SEO |
+| `<body>` | Contains all visible content of the page |
+
+
+---
+
+## 2. Text Elements
+
+### 2.1 Headings (h1 - h6)
+
+Headings are semantic elements that define the hierarchy of your content.
+
+```html
+<!-- Heading levels from most important to least important -->
+<h1>Main Page Title (only one per page)</h1>
+<h2>Section Title</h2>
+<h3>Sub-section Title</h3>
+<h4>Sub-sub-section Title</h4>
+<h5>Minor Heading</h5>
+<h6>Least Important Heading</h6>
+```
+
+**Best Practices:**
+- Only use **one h1 per page** (it represents the main topic of the page)
+- Don't skip heading levels (don't go from h1 to h3)
+- Use headings for semantic hierarchy, not just for font size
+- Search engines use headings to understand the structure of your page
+
+
+---
+
+### 2.2 Paragraph Tag (p)
+
+The paragraph tag is used for blocks of text.
+
+```html
+<p>This is a paragraph of text. Browsers will automatically add vertical space before and after each paragraph.</p>
+
+<p>This is a second paragraph. You cannot put block elements like div or other p tags inside a p tag.</p>
+```
+
+> ❌ Common Mistake: You cannot nest block elements inside a `<p>` tag. Browsers will automatically close the p tag if you try.
+
+
+---
+
+### 2.3 Line Break (br)
+
+A self-closing tag that inserts a single line break.
+
+```html
+<p>This is the first line.<br>This is the second line.</p>
+```
+
+**Best Practices:**
+- Only use `<br>` for line breaks that are part of the content (like addresses or poems)
+- Never use multiple `<br>` tags to create spacing - use CSS margin/padding instead
+
+
+---
+
+### 2.4 Horizontal Rule (hr)
+
+A self-closing tag that represents a thematic break between sections of content.
+
+```html
+<p>First section of content.</p>
+<hr>
+<p>Second section of content, thematically separate from the first.</p>
+```
+
+> 💡 Note: While it renders as a horizontal line, its semantic meaning is a thematic break, not just a line.
+
+
+---
+
+### 2.5 Preformatted Text (pre)
+
+The pre tag preserves whitespace, line breaks, and indentation exactly as it is written in the HTML.
+
+```html
+<pre>
+function hello() {
+  console.log("Hello, World!");
+}
+</pre>
+```
+
+This will render exactly as written, preserving the indentation and line breaks. Perfect for code examples.
+
+
+---
+
+### 2.6 Comments
+
+Comments are notes in your code that are not rendered by the browser.
+
+```html
+<!-- This is a single line comment -->
+
+<!-- 
+This is a multi-line comment
+It can span multiple lines
+-->
+
+<!-- ❌ Bad: Don't leave commented out code in production -->
+<!-- <p>This is old code</p> -->
+```
+
+
+---
+
+## 3. Hyperlinks
+
+The anchor tag (`<a>`) is used to create links to other pages, files, or locations on the same page.
+
+```html
+<!-- Basic Link -->
+<a href="https://www.google.com">Visit Google</a>
+
+<!-- Link that opens in a new tab -->
+<a href="https://www.google.com" target="_blank" rel="noopener noreferrer">Visit Google</a>
+
+<!-- Link to a page on the same site (relative URL) -->
+<a href="/about.html">About Us</a>
+
+<!-- Link to a specific section on the same page (fragment identifier) -->
+<a href="#section-2">Jump to Section 2</a>
+
+<!-- Email link -->
+<a href="mailto:info@example.com">Email Us</a>
+
+<!-- Phone link -->
+<a href="tel:+1234567890">Call Us</a>
+
+<!-- Link with title attribute (tooltip) -->
+<a href="/about" title="Learn more about our company">About Us</a>
+```
+
+### Important Attributes:
+
+| Attribute | Values | Description |
+|-----------|--------|-------------|
+| `href` | URL | The destination of the link |
+| `target` | `_self`, `_blank`, `_parent`, `_top` | Where to open the link |
+| `title` | text | Tooltip text that appears on hover |
+| `rel` | `noopener`, `noreferrer` | Security attributes for external links |
+
+> ⚠️ Security Note: Always add `rel="noopener noreferrer"` when using `target="_blank"` to prevent security vulnerabilities.
+
+
+---
+
+## 4. Images
+
+The image tag (`<img>`) is used to embed images in a page. It is a self-closing tag.
+
+```html
+<!-- Basic Image -->
+<img src="cat.jpg" alt="A cute orange cat sitting on a couch">
+
+<!-- Image with all attributes -->
+<img 
+  src="cat.jpg" 
+  alt="A cute orange cat sitting on a couch"
+  width="400"
+  height="300"
+  loading="lazy"
+  title="My cat Garfield"
+>
+```
+
+### Important Attributes:
+
+| Attribute | Description |
+|-----------|-------------|
+| `src` | The path to the image file |
+| `alt` | Alternative text for accessibility and SEO. **Required for all images.** |
+| `width` / `height` | Dimensions of the image (prevents layout shift) |
+| `loading` | `lazy` - Loads the image only when it's about to enter the viewport |
+| `title` | Tooltip text on hover |
+
+> 💡 Alt Text Best Practices:
+> - Describe the image accurately and concisely
+> - If the image is purely decorative, use an empty alt: `alt=""`
+> - Never use "image of" or "picture of" - screen readers already announce it's an image
+
+
+---
+
+## 5. Media Elements
+
+### 5.1 Audio
+
+The audio tag is used to embed audio content.
+
+```html
+<!-- Basic Audio -->
+<audio src="audio.mp3" controls></audio>
+
+<!-- Audio with all attributes -->
+<audio 
+  src="audio.mp3" 
+  controls 
+  autoplay 
+  muted 
+  loop
+  preload="metadata"
+>
+  Your browser does not support audio.
+</audio>
+```
+
+### 5.2 Video
+
+The video tag is used to embed video content.
+
+```html
+<!-- Basic Video -->
+<video src="video.mp4" controls></video>
+
+<!-- Video with all attributes -->
+<video 
+  src="video.mp4" 
+  controls 
+  autoplay 
+  muted 
+  loop
+  poster="thumbnail.jpg"
+  width="640"
+  height="360"
+>
+  Your browser does not support video.
+</video>
+```
+
+### 5.3 Favicon
+
+A favicon is the small icon that appears in the browser tab.
+
+```html
+<!-- Basic Favicon -->
+<link rel="icon" href="favicon.ico">
+
+<!-- Modern Favicon for all devices -->
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+```
+
+
+---
+
+## 6. Text Formatting
+
+HTML has two types of text formatting tags: semantic (meaning) and presentational (appearance).
+
+### Semantic Formatting Tags (Preferred)
+
+| Tag | Purpose |
+|-----|---------|
+| `<strong>` | Important text (bold) |
+| `<em>` | Emphasized text (italic) |
+| `<mark>` | Highlighted text |
+| `<small>` | Small print, legal text |
+| `<sub>` | Subscript |
+| `<sup>` | Superscript |
+| `<del>` | Deleted text |
+| `<ins>` | Inserted text |
+
+### Presentational Formatting Tags (Avoid)
+
+| Tag | Purpose |
+|-----|---------|
+| `<b>` | Bold text (no semantic meaning) |
+| `<i>` | Italic text (no semantic meaning) |
+| `<u>` | Underlined text |
+| `<s>` | Strikethrough text |
+
+```html
+<!-- Semantic vs Presentational -->
+<p><strong>This is important text</strong></p> <!-- Preferred -->
+<p><b>This is just bold text</b></p>          <!-- Avoid -->
+
+<p><em>This is emphasized text</em></p>       <!-- Preferred -->
+<p><i>This is just italic text</i></p>        <!-- Avoid -->
+
+<p>H<sub>2</sub>O is water. E = mc<sup>2</sup></p>
+<p><mark>This text is highlighted</mark></p>
+<p><del>This text is deleted</del> <ins>This text is inserted</ins></p>
+```
+
+
+---
+
+## 7. Span and Div
+
+Span and div are generic container elements with no semantic meaning. They are used for grouping content for styling or scripting.
+
+| `<div>` | `<span>` |
+|---------|----------|
+| Block level element | Inline element |
+| Takes up full width of its parent | Takes up only as much width as its content |
+| Starts on a new line | Does not start on a new line |
+| Used for grouping larger sections of content | Used for grouping small pieces of text or inline content |
+
+```html
+<!-- Div - Block level container -->
+<div class="card">
+  <h3>Card Title</h3>
+  <p>Card content</p>
+</div>
+
+<!-- Span - Inline container -->
+<p>My favorite color is <span style="color: red;">red</span>.</p>
+```
+
+
+---
+
+## 8. Lists
+
+HTML has three types of lists: unordered, ordered, and description.
+
+### 8.1 Unordered List (ul)
+
+Used for lists of items where the order does not matter.
+
+```html
+<ul>
+  <li>Apples</li>
+  <li>Bananas</li>
+  <li>Oranges</li>
+</ul>
+```
+
+### 8.2 Ordered List (ol)
+
+Used for lists of items where the order does matter.
+
+```html
+<ol>
+  <li>Preheat oven to 350°F</li>
+  <li>Mix dry ingredients</li>
+  <li>Add wet ingredients</li>
+  <li>Bake for 25 minutes</li>
+</ol>
+
+<!-- Ordered List with Attributes -->
+<ol type="I" start="5" reversed>
+  <li>Fifth item</li>
+  <li>Fourth item</li>
+  <li>Third item</li>
+</ol>
+```
+
+#### Ordered List Type Values:
+- `1` - Numbers (default)
+- `A` - Uppercase letters
+- `a` - Lowercase letters
+- `I` - Uppercase Roman numerals
+- `i` - Lowercase Roman numerals
+
+### 8.3 Description List (dl)
+
+Used for lists of terms and their descriptions.
+
+```html
+<dl>
+  <dt>HTML</dt>
+  <dd>HyperText Markup Language, the standard markup language for web pages.</dd>
+  
+  <dt>CSS</dt>
+  <dd>Cascading Style Sheets, used for styling web pages.</dd>
+  
+  <dt>JavaScript</dt>
+  <dd>A programming language used to add interactivity to web pages.</dd>
+</dl>
+```
+
+### Nested Lists
+
+You can nest lists inside other lists:
+
+```html
+<ul>
+  <li>Fruits
+    <ul>
+      <li>Apples</li>
+      <li>Bananas</li>
+    </ul>
+  </li>
+  <li>Vegetables
+    <ul>
+      <li>Carrots</li>
+      <li>Broccoli</li>
+    </ul>
+  </li>
+</ul>
+```
+
+
+---
+
+## 9. Tables
+
+Tables are used to display tabular data.
+
+```html
+<!-- Complete Semantic Table -->
+<table>
+  <caption>Employee Directory</caption>
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Position</th>
+      <th scope="col">Department</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>John Doe</td>
+      <td>Developer</td>
+      <td>Engineering</td>
+    </tr>
+    <tr>
+      <td>Jane Smith</td>
+      <td>Designer</td>
+      <td>Design</td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3">Total Employees: 2</td>
+    </tr>
+  </tfoot>
+</table>
+```
+
+### Table Elements:
+
+| Element | Purpose |
+|---------|---------|
+| `<table>` | The table container |
+| `<caption>` | Table title (accessibility) |
+| `<thead>` | Header section of the table |
+| `<tbody>` | Body section of the table |
+| `<tfoot>` | Footer section of the table |
+| `<tr>` | Table row |
+| `<th>` | Table header cell |
+| `<td>` | Table data cell |
+
+### Table Attributes:
+
+| Attribute | Purpose |
+|-----------|---------|
+| `colspan` | Number of columns a cell should span |
+| `rowspan` | Number of rows a cell should span |
+| `scope` | `col` or `row` - Defines what the header cell applies to (accessibility) |
+
+
+---
+
+## 10. Day 1 Interview Questions & Answers
+
+
+---
+
+### Question 1: What is the purpose of the doctype declaration? What happens if you omit it?
+
+**Answer:**
+
+The doctype declaration tells the browser which version of HTML to use to render the page. In HTML5, it is simply `<!DOCTYPE html>`.
+
+If you omit the doctype, browsers will render the page in "quirks mode", which is a backwards compatibility mode that emulates the behavior of very old browsers. This can cause unexpected layout issues, broken CSS, and inconsistent behavior across different browsers.
+
+```html
+<!-- Correct -->
+<!DOCTYPE html>
+
+<!-- Incorrect - will trigger quirks mode -->
+<html>
+  <head>...</head>
+  <body>...</body>
+</html>
+```
+
+
+---
+
+### Question 2: What is the difference between `<strong>` and `<b>`, and between `<em>` and `<i>`?
+
+**Answer:**
+
+`<strong>` and `<em>` are semantic tags, while `<b>` and `<i>` are presentational tags.
+
+- `<strong>` indicates that the content is important, and will be rendered as bold by default. Screen readers will emphasize the content.
+- `<b>` is purely presentational, it only makes text bold with no semantic meaning.
+- `<em>` indicates that the content should be emphasized, and will be rendered as italic by default. Screen readers will emphasize the content.
+- `<i>` is purely presentational, it only makes text italic with no semantic meaning.
+
+You should always prefer `<strong>` and `<em>` for accessibility and semantic meaning.
+
+```html
+<!-- Good - Semantic -->
+<p><strong>Warning:</strong> This is dangerous.</p>
+<p>I <em>really</em> like ice cream.</p>
+
+<!-- Bad - Presentational only -->
+<p><b>Warning:</b> This is dangerous.</p>
+<p>I <i>really</i> like ice cream.</p>
+```
+
+
+---
+
+### Question 3: What is the difference between a block element and an inline element? Give examples.
+
+**Answer:**
+
+| Block Elements | Inline Elements |
+|----------------|-----------------|
+| Take up the full width of their parent | Take up only as much width as their content |
+| Start on a new line | Do not start on a new line |
+| Can contain other block elements and inline elements | Can only contain other inline elements and text |
+| Examples: `<div>`, `<p>`, `<h1>`, `<ul>`, `<table>` | Examples: `<span>`, `<a>`, `<strong>`, `<em>`, `<img>` |
+
+```html
+<!-- Block elements stack vertically -->
+<div>First div</div>
+<div>Second div</div>
+
+<!-- Inline elements sit next to each other -->
+<span>First span</span>
+<span>Second span</span>
+```
+
+
+---
+
+### Question 4: What is the difference between `<div>` and `<span>`? When would you use each?
+
+**Answer:**
+
+`<div>` is a block level container, while `<span>` is an inline container. Neither has any semantic meaning.
+
+Use `<div>` when you need to group larger sections of content, or when you want the container to take up the full width.
+
+Use `<span>` when you need to group small pieces of text or inline content, or when you don't want the container to break the flow of text.
+
+```html
+<!-- Use div for larger sections -->
+<div class="card">
+  <h3>Card Title</h3>
+  <p>Card content</p>
+</div>
+
+<!-- Use span for inline content -->
+<p>My favorite color is <span style="color: red;">red</span>.</p>
+```
+
+
+---
+
+### Question 5: Why is the alt attribute important for images? What are the best practices for writing alt text?
+
+**Answer:**
+
+The alt attribute is important for three main reasons:
+1. **Accessibility:** Screen readers use alt text to describe images to visually impaired users
+2. **SEO:** Search engines use alt text to understand what the image is about
+3. **Fallback:** If the image fails to load, the alt text is displayed instead
+
+Best practices for alt text:
+- Be descriptive and accurate
+- Keep it concise (125 characters or less)
+- Don't use "image of" or "picture of"
+- For purely decorative images, use an empty alt: `alt=""`
+- Don't include text that is already in the surrounding content
+
+```html
+<!-- Good alt text -->
+<img src="cat.jpg" alt="A cute orange cat sitting on a couch">
+
+<!-- Bad alt text -->
+<img src="cat.jpg" alt="Image of a cat">
+<img src="cat.jpg" alt="cat.jpg">
+```
+
+
+---
+
+### Question 6: What are the security considerations when using `target="_blank"` on links?
+
+**Answer:**
+
+When you use `target="_blank"` to open a link in a new tab, the new page has access to the original page's `window.opener` object. This can be used for malicious purposes, such as phishing attacks.
+
+To prevent this, you should always add `rel="noopener noreferrer"` to any link that uses `target="_blank"`.
+
+```html
+<!-- Bad - Security vulnerability -->
+<a href="https://malicious.com" target="_blank">Click here</a>
+
+<!-- Good - Secure -->
+<a href="https://example.com" target="_blank" rel="noopener noreferrer">Click here</a>
+```
+
+
+---
+
+### Question 7: What is the difference between an unordered list, ordered list, and description list? When would you use each?
+
+**Answer:**
+
+- **Unordered List (`<ul>`):** Used for lists of items where the order does not matter. Example: a list of ingredients.
+- **Ordered List (`<ol>`):** Used for lists of items where the order does matter. Example: a recipe with steps.
+- **Description List (`<dl>`):** Used for lists of terms and their descriptions. Example: a glossary.
+
+```html
+<!-- Unordered list -->
+<ul>
+  <li>Flour</li>
+  <li>Sugar</li>
+  <li>Eggs</li>
+</ul>
+
+<!-- Ordered list -->
+<ol>
+  <li>Mix flour and sugar</li>
+  <li>Add eggs</li>
+  <li>Bake for 25 minutes</li>
+</ol>
+
+<!-- Description list -->
+<dl>
+  <dt>Flour</dt>
+  <dd>A powder made by grinding raw grains.</dd>
+  <dt>Sugar</dt>
+  <dd>A sweet crystalline substance.</dd>
+</dl>
+```
+
+
+---
+
+
+---
+
+# 📘 HTML Day 2 Notes
+
+> **Topics Covered:** Buttons, Forms (Complete Guide), Semantic Tags, Interview Questions
+
+
+---
+
+## 1. Buttons
+
+### 1.1 Button Types
+
+```html
+<!-- Submit Button - Submits the form -->
+<button type="submit">Submit Form</button>
+
+<!-- Reset Button - Resets all form fields to default values -->
+<button type="reset">Reset Form</button>
+
+<!-- Button Type - Generic button, no default behavior -->
+<button type="button">Click Me</button>
+```
+
+### 1.2 Button Attributes
+
+```html
+<!-- Disabled Button -->
+<button type="submit" disabled>Cannot Click</button>
+
+<!-- Button with Name and Value (sent with form data) -->
+<button type="submit" name="action" value="save">Save</button>
+<button type="submit" name="action" value="delete">Delete</button>
+
+<!-- Button with Form Association -->
+<form id="myForm">
+  <input type="text" name="username">
+</form>
+<button type="submit" form="myForm">Submit External Button</button>
+
+<!-- Button with formaction (overrides form action) -->
+<form action="/default-action">
+  <button type="submit">Default Submit</button>
+  <button type="submit" formaction="/different-action">Different Action</button>
+</form>
+
+<!-- Autofocus Button -->
+<button type="button" autofocus>I'm Focused on Page Load</button>
+```
+
+### 1.3 Button vs Input Type Submit
+
+```html
+<!-- Input Submit - Cannot contain HTML elements -->
+<input type="submit" value="Submit">
+
+<!-- Button Submit - Can contain HTML elements -->
+<button type="submit">
+  <img src="icon.png" alt=""> Submit with Icon
+</button>
+
+<!-- Button with styling content -->
+<button type="submit">
+  <strong>Bold Text</strong> and <em>Italic Text</em>
+</button>
+```
+
+### 1.4 Advanced Button Attributes
+
+```html
+<form action="/submit" method="POST" enctype="multipart/form-data">
+  <!-- formmethod - overrides form method -->
+  <button type="submit" formmethod="GET">Submit via GET</button>
+  
+  <!-- formenctype - overrides form enctype -->
+  <button type="submit" formenctype="application/x-www-form-urlencoded">
+    Submit with Different Encoding
+  </button>
+  
+  <!-- formnovalidate - skips form validation -->
+  <button type="submit" formnovalidate>Submit Without Validation</button>
+  
+  <!-- formtarget - overrides form target -->
+  <button type="submit" formtarget="_blank">Submit in New Tab</button>
+</form>
+```
+
+
+---
+
+## 2. Forms - Complete Guide
+
+### 2.1 Form Element & Attributes
+
+```html
+<!-- Complete Form with All Attributes -->
+<form 
+  action="/api/submit"           
+  method="POST"                   
+  enctype="multipart/form-data"   
+  name="registrationForm"         
+  id="regForm"                    
+  target="_self"                  
+  autocomplete="on"               
+  novalidate                      
+  accept-charset="UTF-8"          
+  rel="noopener"                  
+>
+  <!-- Form content here -->
+</form>
+```
+
+#### Form Attributes Explained:
+
+| Attribute | Values | Description |
+|-----------|--------|-------------|
+| `action` | URL | Where to send form data |
+| `method` | GET, POST | HTTP method to use |
+| `enctype` | See below | How form data is encoded |
+| `name` | text | Name of the form |
+| `target` | _self, _blank, _parent, _top | Where to display response |
+| `autocomplete` | on, off | Enable/disable autocomplete |
+| `novalidate` | boolean | Disable HTML5 validation |
+| `accept-charset` | charset | Character encoding for submission |
+
+#### Enctype Values:
+
+```html
+<!-- Default - Form data encoded as key=value pairs -->
+<form enctype="application/x-www-form-urlencoded">
+
+<!-- For file uploads - Required when using <input type="file"> -->
+<form enctype="multipart/form-data">
+
+<!-- Plain text - Data sent as plain text (rarely used) -->
+<form enctype="text/plain">
+```
+
+### 2.2 Method: GET vs POST
+
+```html
+<!-- GET Method -->
+<!-- Data visible in URL, limited size (~2048 chars), bookmarkable -->
+<!-- Use for: Search forms, filters, non-sensitive data -->
+<form action="/search" method="GET">
+  <input type="text" name="query">
+  <button type="submit">Search</button>
+</form>
+<!-- URL becomes: /search?query=searchterm -->
+
+
+<!-- POST Method -->
+<!-- Data in request body, no size limit, not bookmarkable -->
+<!-- Use for: Login, registration, file uploads, sensitive data -->
+<form action="/login" method="POST">
+  <input type="text" name="username">
+  <input type="password" name="password">
+  <button type="submit">Login</button>
+</form>
+```
+
+### 2.3 All Input Types
+
+#### Text-Based Inputs
+
+```html
+<!-- Text Input -->
+<label for="username">Username:</label>
+<input 
+  type="text" 
+  id="username" 
+  name="username"
+  placeholder="Enter username"
+  value=""
+  minlength="3"
+  maxlength="20"
+  size="30"
+  required
+  autofocus
+  autocomplete="username"
+  spellcheck="true"
+  readonly
+  disabled
+>
+
+<!-- Password Input -->
+<label for="password">Password:</label>
+<input 
+  type="password" 
+  id="password" 
+  name="password"
+  placeholder="Enter password"
+  minlength="8"
+  maxlength="50"
+  pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+  title="Must contain at least one number, one uppercase and lowercase letter, and at least 8 characters"
+  required
+  autocomplete="current-password"
+>
+
+<!-- Email Input -->
+<label for="email">Email:</label>
+<input 
+  type="email" 
+  id="email" 
+  name="email"
+  placeholder="user@example.com"
+  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+  multiple  
+  required
+>
+
+<!-- URL Input -->
+<label for="website">Website:</label>
+<input 
+  type="url" 
+  id="website" 
+  name="website"
+  placeholder="https://example.com"
+  pattern="https://.*"
+  title="URL must start with https://"
+>
+
+<!-- Telephone Input -->
+<label for="phone">Phone:</label>
+<input 
+  type="tel" 
+  id="phone" 
+  name="phone"
+  placeholder="123-456-7890"
+  pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+  title="Format: 123-456-7890"
+>
+
+<!-- Search Input -->
+<label for="search">Search:</label>
+<input 
+  type="search" 
+  id="search" 
+  name="search"
+  placeholder="Search..."
+  list="search-suggestions"
+>
+<datalist id="search-suggestions">
+  <option value="HTML">
+  <option value="CSS">
+  <option value="JavaScript">
+</datalist>
+```
+
+#### Number-Based Inputs
+
+```html
+<!-- Number Input -->
+<label for="quantity">Quantity (1-100):</label>
+<input 
+  type="number" 
+  id="quantity" 
+  name="quantity"
+  min="1"
+  max="100"
+  step="1"
+  value="1"
+  required
+>
+
+<!-- Range Input (Slider) -->
+<label for="volume">Volume (0-100): <span id="volumeValue">50</span></label>
+<input 
+  type="range" 
+  id="volume" 
+  name="volume"
+  min="0"
+  max="100"
+  step="5"
+  value="50"
+  oninput="document.getElementById('volumeValue').textContent = this.value"
+>
+```
+
+#### Date and Time Inputs
+
+```html
+<!-- Date Input -->
+<label for="birthdate">Birth Date:</label>
+<input 
+  type="date" 
+  id="birthdate" 
+  name="birthdate"
+  min="1900-01-01"
+  max="2024-12-31"
+  required
+>
+
+<!-- Month Input -->
+<label for="startMonth">Start Month:</label>
+<input 
+  type="month" 
+  id="startMonth" 
+  name="startMonth"
+  min="2020-01"
+  max="2025-12"
+>
+
+<!-- Week Input -->
+<label for="week">Select Week:</label>
+<input 
+  type="week" 
+  id="week" 
+  name="week"
+  min="2024-W01"
+  max="2024-W52"
+>
+
+<!-- Time Input -->
+<label for="appointmentTime">Appointment Time:</label>
+<input 
+  type="time" 
+  id="appointmentTime" 
+  name="appointmentTime"
+  min="09:00"
+  max="18:00"
+  step="1800"
+  required
+>
+
+<!-- DateTime-Local Input -->
+<label for="meeting">Meeting Date & Time:</label>
+<input 
+  type="datetime-local" 
+  id="meeting" 
+  name="meeting"
+  min="2024-01-01T00:00"
+  max="2024-12-31T23:59"
+>
+```
+
+#### Selection Inputs
+
+```html
+<!-- Checkbox (Multiple Selection) -->
+<fieldset>
+  <legend>Select your skills:</legend>
+  
+  <input type="checkbox" id="html" name="skills" value="html" checked>
+  <label for="html">HTML</label>
+  
+  <input type="checkbox" id="css" name="skills" value="css">
+  <label for="css">CSS</label>
+  
+  <input type="checkbox" id="js" name="skills" value="javascript">
+  <label for="js">JavaScript</label>
+  
+  <!-- Indeterminate state (set via JavaScript) -->
+  <input type="checkbox" id="selectAll" name="selectAll">
+  <label for="selectAll">Select All</label>
+</fieldset>
+
+<!-- Radio Buttons (Single Selection) -->
+<fieldset>
+  <legend>Select Gender:</legend>
+  
+  <input type="radio" id="male" name="gender" value="male" required>
+  <label for="male">Male</label>
+  
+  <input type="radio" id="female" name="gender" value="female">
+  <label for="female">Female</label>
+  
+  <input type="radio" id="other" name="gender" value="other">
+  <label for="other">Other</label>
+</fieldset>
+```
+
+#### File Input
+
+```html
+<!-- Single File Upload -->
+<label for="resume">Upload Resume:</label>
+<input 
+  type="file" 
+  id="resume" 
+  name="resume"
+  accept=".pdf,.doc,.docx"
+  required
+>
+
+<!-- Multiple Files -->
+<label for="photos">Upload Photos:</label>
+<input 
+  type="file" 
+  id="photos" 
+  name="photos"
+  accept="image/*"
+  multiple
+>
+
+<!-- Camera Capture (Mobile) -->
+<label for="selfie">Take a Selfie:</label>
+<input 
+  type="file" 
+  id="selfie" 
+  name="selfie"
+  accept="image/*"
+  capture="user"
+>
+
+<!-- Video Capture -->
+<label for="video">Record Video:</label>
+<input 
+  type="file" 
+  id="video" 
+  name="video"
+  accept="video/*"
+  capture="environment"
+>
+
+<!-- Accept Attribute Values -->
+<!--
+  accept="image/*"                    - All image types
+  accept="video/*"                    - All video types
+  accept="audio/*"                    - All audio types
+  accept=".pdf"                       - Only PDF files
+  accept=".jpg,.jpeg,.png,.gif"       - Specific image types
+  accept="image/png,image/jpeg"       - MIME types
+  accept=".doc,.docx,.pdf,image/*"    - Multiple types
+-->
+```
+
+#### Other Input Types
+
+```html
+<!-- Hidden Input -->
+<input type="hidden" name="csrf_token" value="abc123xyz">
+<input type="hidden" name="user_id" value="12345">
+
+<!-- Color Picker -->
+<label for="favcolor">Favorite Color:</label>
+<input 
+  type="color" 
+  id="favcolor" 
+  name="favcolor"
+  value="#ff0000"
+>
+
+<!-- Image Submit Button -->
+<input 
+  type="image" 
+  src="submit-button.png" 
+  alt="Submit"
+  width="100"
+  height="40"
+>
+```
+
+### 2.4 Select Dropdown
+
+```html
+<!-- Basic Select -->
+<label for="country">Country:</label>
+<select id="country" name="country" required>
+  <option value="">-- Select Country --</option>
+  <option value="us">United States</option>
+  <option value="uk">United Kingdom</option>
+  <option value="in" selected>India</option>
+  <option value="ca">Canada</option>
+</select>
+
+<!-- Select with Option Groups -->
+<label for="car">Choose a Car:</label>
+<select id="car" name="car" size="5" multiple>
+  <optgroup label="Swedish Cars">
+    <option value="volvo">Volvo</option>
+    <option value="saab">Saab</option>
+  </optgroup>
+  <optgroup label="German Cars">
+    <option value="mercedes">Mercedes</option>
+    <option value="audi">Audi</option>
+    <option value="bmw" disabled>BMW (Not Available)</option>
+  </optgroup>
+  <optgroup label="Japanese Cars" disabled>
+    <option value="toyota">Toyota</option>
+    <option value="honda">Honda</option>
+  </optgroup>
+</select>
+
+<!-- Select Attributes -->
+<select 
+  name="items"
+  id="items"
+  size="4"           
+  multiple           
+  required           
+  disabled           
+  autofocus          
+  form="formId"      
+>
+```
+
+### 2.5 Textarea
+
+```html
+<!-- Textarea with All Attributes -->
+<label for="message">Your Message:</label>
+<textarea 
+  id="message" 
+  name="message"
+  rows="5"                    
+  cols="50"                   
+  minlength="10"              
+  maxlength="500"             
+  placeholder="Enter your message here..."
+  required
+  readonly                   
+  disabled                    
+  wrap="soft"                 
+  spellcheck="true"           
+  autocomplete="off"          
+  autofocus                   
+  form="externalForm"         
+  dirname="message.dir"       
+></textarea>
+
+<!-- Wrap Attribute Values -->
+<!-- wrap="soft" - Text wraps visually but submitted without line breaks -->
+<!-- wrap="hard" - Text wraps and line breaks are included (requires cols) -->
+<!-- wrap="off"  - No wrapping -->
+```
+
+### 2.6 Labels & Fieldset
+
+```html
+<!-- Label - Two Methods -->
+<!-- Method 1: Using 'for' attribute -->
+<label for="email">Email Address:</label>
+<input type="email" id="email" name="email">
+
+<!-- Method 2: Wrapping the input -->
+<label>
+  Email Address:
+  <input type="email" name="email">
+</label>
+
+
+<!-- Fieldset and Legend -->
+<fieldset>
+  <legend>Personal Information</legend>
+  
+  <label for="fname">First Name:</label>
+  <input type="text" id="fname" name="fname">
+  
+  <label for="lname">Last Name:</label>
+  <input type="text" id="lname" name="lname">
+</fieldset>
+
+<fieldset disabled>
+  <legend>Disabled Section</legend>
+  <input type="text" name="disabled_field">
+</fieldset>
+```
+
+### 2.7 Datalist
+
+```html
+<!-- Datalist for Autocomplete Suggestions -->
+<label for="browser">Choose your browser:</label>
+<input 
+  type="text" 
+  id="browser" 
+  name="browser"
+  list="browsers"
+  placeholder="Start typing..."
+>
+<datalist id="browsers">
+  <option value="Chrome">
+  <option value="Firefox">
+  <option value="Safari">
+  <option value="Edge">
+  <option value="Opera">
+</datalist>
+
+<!-- Datalist with Labels -->
+<input type="text" list="languages" name="language">
+<datalist id="languages">
+  <option value="JS" label="JavaScript">
+  <option value="PY" label="Python">
+  <option value="RB" label="Ruby">
+</datalist>
+```
+
+### 2.8 Output Element
+
+```html
+<!-- Output for Calculation Results -->
+<form oninput="result.value = parseInt(a.value) + parseInt(b.value)">
+  <input type="number" id="a" name="a" value="10"> +
+  <input type="number" id="b" name="b" value="20"> =
+  <output name="result" for="a b">30</output>
+</form>
+
+<!-- Range with Output -->
+<form oninput="rangeOutput.value = rangeInput.value">
+  <input type="range" id="rangeInput" name="rangeInput" min="0" max="100" value="50">
+  <output name="rangeOutput" for="rangeInput">50</output>
+</form>
+```
+
+### 2.9 Progress and Meter
+
+```html
+<!-- Progress Bar -->
+<label for="download">Download Progress:</label>
+<progress id="download" value="70" max="100">70%</progress>
+
+<!-- Indeterminate Progress (no value) -->
+<progress id="loading">Loading...</progress>
+
+
+<!-- Meter (Gauge) -->
+<label for="disk">Disk Usage:</label>
+<meter 
+  id="disk" 
+  value="0.7"
+  min="0"
+  max="1"
+  low="0.3"
+  high="0.7"
+  optimum="0.5"
+>
+  70%
+</meter>
+
+<!-- Meter Examples -->
+<meter value="2" min="0" max="10" low="3" high="7" optimum="5">2 out of 10</meter>
+<meter value="0.8" min="0" max="1">80%</meter>
+```
+
+### 2.10 Validation Attributes
+
+```html
+<!-- Complete Validation Example -->
+<form action="/submit" method="POST">
+  
+  <!-- Required Field -->
+  <input type="text" name="name" required>
+  
+  <!-- Min/Max Length -->
+  <input type="text" name="username" minlength="3" maxlength="20">
+  
+  <!-- Pattern (RegEx) -->
+  <input 
+    type="text" 
+    name="zipcode"
+    pattern="[0-9]{5}(-[0-9]{4})?"
+    title="Enter a valid ZIP code (12345 or 12345-6789)"
+  >
+  
+  <!-- Min/Max for Numbers -->
+  <input type="number" name="age" min="18" max="120">
+  
+  <!-- Step -->
+  <input type="number" name="price" min="0" max="1000" step="0.01">
+  
+  <!-- Custom Pattern Examples -->
+  
+  <!-- Phone Number: (123) 456-7890 -->
+  <input 
+    type="tel" 
+    pattern="\([0-9]{3}\) [0-9]{3}-[0-9]{4}"
+    title="Format: (123) 456-7890"
+  >
+  
+  <!-- Username: alphanumeric, 3-16 chars -->
+  <input 
+    type="text" 
+    pattern="^[a-zA-Z0-9]{3,16}$"
+    title="3-16 alphanumeric characters"
+  >
+  
+  <!-- Strong Password -->
+  <input 
+    type="password"
+    pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+    title="Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char"
+  >
+  
+  <!-- Indian PAN Card -->
+  <input 
+    type="text" 
+    pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
+    title="Valid PAN format: ABCDE1234F"
+  >
+  
+  <button type="submit">Submit</button>
+</form>
+```
+
+### 2.11 Complete Form Example
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete Registration Form</title>
+</head>
+<body>
+  <form 
+    action="/api/register" 
+    method="POST" 
+    enctype="multipart/form-data"
+    autocomplete="on"
+    id="registrationForm"
+  >
+    
+    <!-- Personal Information -->
+    <fieldset>
+      <legend>Personal Information</legend>
+      
+      <label for="fullName">Full Name: *</label>
+      <input 
+        type="text" 
+        id="fullName" 
+        name="fullName"
+        placeholder="John Doe"
+        minlength="2"
+        maxlength="50"
+        pattern="^[a-zA-Z\s]+$"
+        title="Only letters and spaces allowed"
+        autocomplete="name"
+        required
+        autofocus
+      >
+      <br><br>
+      
+      <label for="email">Email: *</label>
+      <input 
+        type="email" 
+        id="email" 
+        name="email"
+        placeholder="john@example.com"
+        autocomplete="email"
+        required
+      >
+      <br><br>
+      
+      <label for="phone">Phone:</label>
+      <input 
+        type="tel" 
+        id="phone" 
+        name="phone"
+        placeholder="123-456-7890"
+        pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+        title="Format: 123-456-7890"
+        autocomplete="tel"
+      >
+      <br><br>
+      
+      <label for="dob">Date of Birth: *</label>
+      <input 
+        type="date" 
+        id="dob" 
+        name="dob"
+        min="1900-01-01"
+        max="2010-12-31"
+        required
+      >
+      <br><br>
+      
+      <label for="profilePic">Profile Picture:</label>
+      <input 
+        type="file" 
+        id="profilePic" 
+        name="profilePic"
+        accept="image/png,image/jpeg,image/gif"
+      >
+    </fieldset>
+    <br>
+    
+    <!-- Account Information -->
+    <fieldset>
+      <legend>Account Information</legend>
+      
+      <label for="username">Username: *</label>
+      <input 
+        type="text" 
+        id="username" 
+        name="username"
+        placeholder="johndoe123"
+        minlength="3"
+        maxlength="20"
+        pattern="^[a-zA-Z0-9_]+$"
+        title="Alphanumeric characters and underscores only"
+        autocomplete="username"
+        required
+      >
+      <br><br>
+      
+      <label for="password">Password: *</label>
+      <input 
+        type="password" 
+        id="password" 
+        name="password"
+        placeholder="Enter strong password"
+        minlength="8"
+        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$"
+        title="Min 8 characters with uppercase, lowercase, and number"
+        autocomplete="new-password"
+        required
+      >
+      <br><br>
+      
+      <label for="confirmPassword">Confirm Password: *</label>
+      <input 
+        type="password" 
+        id="confirmPassword" 
+        name="confirmPassword"
+        placeholder="Confirm your password"
+        autocomplete="new-password"
+        required
+      >
+    </fieldset>
+    <br>
+    
+    <!-- Preferences -->
+    <fieldset>
+      <legend>Preferences</legend>
+      
+      <label for="country">Country: *</label>
+      <select id="country" name="country" required>
+        <option value="">-- Select Country --</option>
+        <optgroup label="North America">
+          <option value="us">United States</option>
+          <option value="ca">Canada</option>
+          <option value="mx">Mexico</option>
+        </optgroup>
+        <optgroup label="Europe">
+          <option value="uk">United Kingdom</option>
+          <option value="de">Germany</option>
+          <option value="fr">France</option>
+        </optgroup>
+        <optgroup label="Asia">
+          <option value="in">India</option>
+          <option value="jp">Japan</option>
+          <option value="cn">China</option>
+        </optgroup>
+      </select>
+      <br><br>
+      
+      <label for="language">Preferred Language:</label>
+      <input type="text" id="language" name="language" list="languages">
+      <datalist id="languages">
+        <option value="English">
+        <option value="Spanish">
+        <option value="French">
+        <option value="German">
+        <option value="Hindi">
+        <option value="Japanese">
+      </datalist>
+      <br><br>
+      
+      <label for="theme">Theme Color:</label>
+      <input type="color" id="theme" name="theme" value="#3498db">
+      <br><br>
+      
+      <label>Gender: *</label><br>
+      <input type="radio" id="male" name="gender" value="male" required>
+      <label for="male">Male</label>
+      
+      <input type="radio" id="female" name="gender" value="female">
+      <label for="female">Female</label>
+      
+      <input type="radio" id="other" name="gender" value="other">
+      <label for="other">Other</label>
+      
+      <input type="radio" id="preferNot" name="gender" value="prefer_not_to_say">
+      <label for="preferNot">Prefer not to say</label>
+      <br><br>
+      
+      <label>Interests:</label><br>
+      <input type="checkbox" id="tech" name="interests" value="technology">
+      <label for="tech">Technology</label>
+      
+      <input type="checkbox" id="sports" name="interests" value="sports">
+      <label for="sports">Sports</label>
+      
+      <input type="checkbox" id="music" name="interests" value="music">
+      <label for="music">Music</label>
+      
+      <input type="checkbox" id="travel" name="interests" value="travel">
+      <label for="travel">Travel</label>
+      <br><br>
+      
+      <label for="experience">Experience Level:</label>
+      <input 
+        type="range" 
+        id="experience" 
+        name="experience"
+        min="0"
+        max="10"
+        value="5"
+        step="1"
+        oninput="document.getElementById('expValue').textContent = this.value"
+      >
+      <span id="expValue">5</span> years
+      <br><br>
+      
+      <label for="salary">Expected Salary ($):</label>
+      <input 
+        type="number" 
+        id="salary" 
+        name="salary"
+        min="0"
+        max="1000000"
+        step="1000"
+        placeholder="50000"
+      >
+    </fieldset>
+    <br>
+    
+    <!-- Additional Information -->
+    <fieldset>
+      <legend>Additional Information</legend>
+      
+      <label for="website">Personal Website:</label>
+      <input 
+        type="url" 
+        id="website" 
+        name="website"
+        placeholder="https://yourwebsite.com"
+        pattern="https://.*"
+        title="URL must start with https://"
+      >
+      <br><br>
+      
+      <label for="bio">Bio:</label><br>
+      <textarea 
+        id="bio" 
+        name="bio"
+        rows="4"
+        cols="50"
+        minlength="10"
+        maxlength="500"
+        placeholder="Tell us about yourself..."
+        wrap="soft"
+      ></textarea>
+      <br><br>
+      
+      <label for="resume">Upload Resume:</label>
+      <input 
+        type="file" 
+        id="resume" 
+        name="resume"
+        accept=".pdf,.doc,.docx"
+      >
+      <br><br>
+      
+      <label for="portfolio">Portfolio Images:</label>
+      <input 
+        type="file" 
+        id="portfolio" 
+        name="portfolio"
+        accept="image/*"
+        multiple
+      >
+    </fieldset>
+    <br>
+    
+    <!-- Terms and Submit -->
+    <fieldset>
+      <legend>Terms & Conditions</legend>
+      
+      <input type="checkbox" id="terms" name="terms" value="accepted" required>
+      <label for="terms">I agree to the Terms and Conditions *</label>
+      <br><br>
+      
+      <input type="checkbox" id="newsletter" name="newsletter" value="yes">
+      <label for="newsletter">Subscribe to newsletter</label>
+    </fieldset>
+    <br>
+    
+    <!-- Hidden Fields -->
+    <input type="hidden" name="formVersion" value="2.0">
+    <input type="hidden" name="timestamp" value="">
+    
+    <!-- Submit Buttons -->
+    <button type="submit">Register</button>
+    <button type="reset">Clear Form</button>
+    <button type="submit" formaction="/api/save-draft" formnovalidate>Save as Draft</button>
+    
+  </form>
+</body>
+</html>
+```
+
+
+---
+
+## 3. Semantic Tags
+
+### 3.1 What are Semantic Tags?
+
+Semantic HTML tags clearly describe their meaning to both the browser and developer. They provide information about the content they contain.
+
+**Benefits:**
+- Better SEO (Search Engine Optimization)
+- Improved Accessibility (Screen readers)
+- Cleaner, more readable code
+- Easier maintenance
+- Better browser interpretation
+
+### 3.2 Document Structure Tags
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semantic HTML Structure</title>
+</head>
+<body>
+
+  <!-- HEADER: Introductory content, navigation -->
+  <header>
+    <h1>Website Logo</h1>
+    <nav>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- MAIN: Primary content of the document -->
+  <main>
+    
+    <!-- ARTICLE: Self-contained, independently distributable content -->
+    <article>
+      <header>
+        <h2>Article Title</h2>
+        <p>Published on <time datetime="2024-01-15">January 15, 2024</time></p>
+      </header>
+      
+      <!-- SECTION: Thematic grouping of content -->
+      <section>
+        <h3>Section 1: Introduction</h3>
+        <p>This is the introduction paragraph...</p>
+      </section>
+      
+      <section>
+        <h3>Section 2: Main Content</h3>
+        <p>This is the main content...</p>
+        
+        <!-- FIGURE: Self-contained content like images, diagrams -->
+        <figure>
+          <img src="diagram.png" alt="Diagram showing process flow">
+          <figcaption>Figure 1: Process Flow Diagram</figcaption>
+        </figure>
+      </section>
+      
+      <footer>
+        <p>Author: John Doe</p>
+        <p>Tags: HTML, Semantic, Web Development</p>
+      </footer>
+    </article>
+
+    <!-- ASIDE: Content tangentially related to surrounding content -->
+    <aside>
+      <h3>Related Articles</h3>
+      <ul>
+        <li><a href="#">Understanding CSS Grid</a></li>
+        <li><a href="#">JavaScript Basics</a></li>
+        <li><a href="#">Responsive Design Tips</a></li>
+      </ul>
+      
+      <h3>Advertisement</h3>
+      <p>This is an ad space...</p>
+    </aside>
+
+  </main>
+
+  <!-- FOOTER: Footer for document or section -->
+  <footer>
+    <nav>
+      <a href="#privacy">Privacy Policy</a>
+      <a href="#terms">Terms of Service</a>
+    </nav>
+    <address>
+      Contact us at: <a href="mailto:info@example.com">info@example.com</a><br>
+      Address: 123 Web Street, Internet City
+    </address>
+    <p><small>&copy; 2024 Company Name. All rights reserved.</small></p>
+  </footer>
+
+</body>
+</html>
+```
+
+### 3.3 All Semantic Tags Explained
+
+#### Header
+
+```html
+<!-- Page Header -->
+<header>
+  <h1>My Website</h1>
+  <p>Welcome to my site</p>
+  <nav>...</nav>
+</header>
+
+<!-- Article Header -->
+<article>
+  <header>
+    <h2>Blog Post Title</h2>
+    <p>By Author Name | <time datetime="2024-01-15">Jan 15, 2024</time></p>
+  </header>
+  <p>Article content...</p>
+</article>
+
+<!-- Section Header -->
+<section>
+  <header>
+    <h3>Section Title</h3>
+    <p>Section description</p>
+  </header>
+</section>
+```
+
+#### Navigation (nav)
+
+```html
+<!-- Main Navigation -->
+<nav aria-label="Main Navigation">
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/products">Products</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- Breadcrumb Navigation -->
+<nav aria-label="Breadcrumb">
+  <ol>
+    <li><a href="/">Home</a></li>
+    <li><a href="/products">Products</a></li>
+    <li aria-current="page">Laptops</li>
+  </ol>
+</nav>
+
+<!-- Footer Navigation -->
+<nav aria-label="Footer Navigation">
+  <a href="/privacy">Privacy</a>
+  <a href="/terms">Terms</a>
+  <a href="/sitemap">Sitemap</a>
+</nav>
+
+<!-- Pagination Navigation -->
+<nav aria-label="Pagination">
+  <a href="?page=1">First</a>
+  <a href="?page=4">Previous</a>
+  <span aria-current="page">5</span>
+  <a href="?page=6">Next</a>
+  <a href="?page=10">Last</a>
+</nav>
+```
+
+#### Main
+
+```html
+<!-- Only ONE main element per page -->
+<main>
+  <h1>Page Title</h1>
+  <article>...</article>
+  <section>...</section>
+</main>
+
+<!-- Skip to main content (accessibility) -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<header>...</header>
+<main id="main-content">
+  <!-- Main content here -->
+</main>
+```
+
+#### Article
+
+```html
+<!-- Blog Post -->
+<article>
+  <header>
+    <h2>How to Learn HTML in 30 Days</h2>
+    <p>Published: <time datetime="2024-01-15">January 15, 2024</time></p>
+    <p>Author: Jane Smith</p>
+  </header>
+  
+  <p>Learning HTML is the first step to becoming a web developer...</p>
+  
+  <section>
+    <h3>Day 1-7: Basics</h3>
+    <p>Start with understanding tags and elements...</p>
+  </section>
+  
+  <section>
+    <h3>Day 8-14: Forms</h3>
+    <p>Learn how to create interactive forms...</p>
+  </section>
+  
+  <footer>
+    <p>Tags: HTML, Tutorial, Beginners</p>
+    <p>Share: <a href="#">Twitter</a> | <a href="#">Facebook</a></p>
+  </footer>
+</article>
+
+<!-- Product Card -->
+<article class="product-card">
+  <img src="product.jpg" alt="Product Name">
+  <h3>Product Name</h3>
+  <p>$99.99</p>
+  <button>Add to Cart</button>
+</article>
+
+<!-- Comment -->
+<article class="comment">
+  <header>
+    <img src="avatar.jpg" alt="User avatar">
+    <h4>Username</h4>
+    <time datetime="2024-01-15T14:30">2 hours ago</time>
+  </header>
+  <p>This is a great article! Thanks for sharing.</p>
+</article>
+
+<!-- Nested Articles (Comments on a blog post) -->
+<article class="blog-post">
+  <h2>Blog Post Title</h2>
+  <p>Blog content...</p>
+  
+  <section class="comments">
+    <h3>Comments</h3>
+    
+    <article class="comment">
+      <p>First comment...</p>
+    </article>
+    
+    <article class="comment">
+      <p>Second comment...</p>
+    </article>
+  </section>
+</article>
+```
+
+#### Section
+
+```html
+<!-- Different sections of a page -->
+<main>
+  <section id="hero">
+    <h1>Welcome to Our Site</h1>
+    <p>We build amazing web experiences</p>
+  </section>
+
+  <section id="features">
+    <h2>Our Features</h2>
+    <div class="feature">...</div>
+    <div class="feature">...</div>
+  </section>
+
+  <section id="testimonials">
+    <h2>What Our Clients Say</h2>
+    <blockquote>...</blockquote>
+  </section>
+
+  <section id="pricing">
+    <h2>Pricing Plans</h2>
+    <article class="plan">...</article>
+    <article class="plan">...</article>
+  </section>
+
+  <section id="contact">
+    <h2>Contact Us</h2>
+    <form>...</form>
+  </section>
+</main>
+```
+
+#### Aside
+
+```html
+<!-- Sidebar -->
+<aside>
+  <section>
+    <h3>About the Author</h3>
+    <img src="author.jpg" alt="Author">
+    <p>John is a web developer with 10 years of experience...</p>
+  </section>
+  
+  <section>
+    <h3>Related Posts</h3>
+    <ul>
+      <li><a href="#">Post 1</a></li>
+      <li><a href="#">Post 2</a></li>
+    </ul>
+  </section>
+  
+  <section>
+    <h3>Categories</h3>
+    <ul>
+      <li><a href="#">HTML</a></li>
+      <li><a href="#">CSS</a></li>
+      <li><a href="#">JavaScript</a></li>
+    </ul>
+  </section>
+</aside>
+
+<!-- Pull Quote within article -->
+<article>
+  <p>The web is constantly evolving...</p>
+  
+  <aside>
+    <blockquote>
+      "The future of the web is semantic and accessible."
+    </blockquote>
+  </aside>
+  
+  <p>More article content...</p>
+</article>
+
+<!-- Glossary or Definition -->
+<aside>
+  <h4>Definition</h4>
+  <p><dfn>Semantic HTML</dfn> refers to HTML that introduces meaning to the web page rather than just presentation.</p>
+</aside>
+```
+
+#### Footer
+
+```html
+<!-- Page Footer -->
+<footer>
+  <div class="footer-content">
+    <section>
+      <h4>About Us</h4>
+      <p>Company description...</p>
+    </section>
+    
+    <section>
+      <h4>Quick Links</h4>
+      <nav>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Services</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </nav>
+    </section>
+    
+    <section>
+      <h4>Contact</h4>
+      <address>
+        123 Street Name<br>
+        City, State 12345<br>
+        <a href="tel:+1234567890">(123) 456-7890</a><br>
+        <a href="mailto:info@example.com">info@example.com</a>
+      </address>
+    </section>
+    
+    <section>
+      <h4>Follow Us</h4>
+      <a href="#">Facebook</a>
+      <a href="#">Twitter</a>
+      <a href="#">Instagram</a>
+    </section>
+  </div>
+  
+  <div class="footer-bottom">
+    <p><small>&copy; 2024 Company Name. All rights reserved.</small></p>
+    <nav>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </nav>
+  </div>
+</footer>
+
+<!-- Article Footer -->
+<article>
+  <h2>Article Title</h2>
+  <p>Content...</p>
+  
+  <footer>
+    <p>Written by: <a href="#">Author Name</a></p>
+    <p>Published: <time datetime="2024-01-15">January 15, 2024</time></p>
+    <p>Categories: <a href="#">Tech</a>, <a href="#">Web Dev</a></p>
+  </footer>
+</article>
+```
+
+#### Figure and Figcaption
+
+```html
+<!-- Image with Caption -->
+<figure>
+  <img src="sunset.jpg" alt="Beautiful sunset over the ocean">
+  <figcaption>A stunning sunset captured at Malibu Beach, California</figcaption>
+</figure>
+
+<!-- Multiple Images -->
+<figure>
+  <img src="before.jpg" alt="Before renovation">
+  <img src="after.jpg" alt="After renovation">
+  <figcaption>Home renovation: Before and After comparison</figcaption>
+</figure>
+
+<!-- Code Example -->
+<figure>
+  <pre><code>
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+  </code></pre>
+  <figcaption>Example: A simple JavaScript greeting function</figcaption>
+</figure>
+
+<!-- Chart or Diagram -->
+<figure>
+  <img src="chart.png" alt="Sales chart showing growth from 2020-2024">
+  <figcaption>
+    <strong>Figure 2.1:</strong> Annual sales growth from 2020 to 2024.
+    <small>Source: Company Financial Reports</small>
+  </figcaption>
+</figure>
+
+<!-- Video -->
+<figure>
+  <video controls width="400">
+    <source src="tutorial.mp4" type="video/mp4">
+    Your browser doesn't support video.
+  </video>
+  <figcaption>Video Tutorial: Getting Started with HTML</figcaption>
+</figure>
+
+<!-- Blockquote -->
+<figure>
+  <blockquote cite="https://example.com/quote-source">
+    "The only way to do great work is to love what you do."
+  </blockquote>
+  <figcaption>— Steve Jobs, Stanford Commencement Speech, 2005</figcaption>
+</figure>
+
+<!-- Audio -->
+<figure>
+  <audio controls>
+    <source src="podcast.mp3" type="audio/mpeg">
+  </audio>
+  <figcaption>Podcast Episode 42: The Future of Web Development</figcaption>
+</figure>
+```
+
+#### Time
+
+```html
+<!-- Date -->
+<p>Published on <time datetime="2024-01-15">January 15, 2024</time></p>
+
+<!-- Date and Time -->
+<p>Meeting scheduled for <time datetime="2024-01-15T14:30">Jan 15, 2024 at 2:30 PM</time></p>
+
+<!-- Time Only -->
+<p>Office hours: <time datetime="09:00">9:00 AM</time> to <time datetime="17:00">5:00 PM</time></p>
+
+<!-- Duration -->
+<p>Duration: <time datetime="PT2H30M">2 hours 30 minutes</time></p>
+
+<!-- Year and Month -->
+<p>Started in <time datetime="2020-03">March 2020</time></p>
+
+<!-- Week -->
+<p>Week of <time datetime="2024-W03">January 15-21, 2024</time></p>
+
+<!-- Relative Time (with JavaScript typically) -->
+<p>Posted <time datetime="2024-01-15T10:00:00Z">3 hours ago</time></p>
+
+<!-- Machine-readable formats -->
+<!-- datetime="YYYY-MM-DD" - Date -->
+<!-- datetime="HH:MM" - Time -->
+<!-- datetime="YYYY-MM-DDTHH:MM" - Date and time -->
+<!-- datetime="YYYY-MM-DDTHH:MM:SSZ" - Date, time with timezone -->
+<!-- datetime="PTXHXMXS" - Duration (P=Period, T=Time, H=Hours, M=Minutes, S=Seconds) -->
+```
+
+#### Address
+
+```html
+<!-- Contact Information -->
+<address>
+  <strong>John Doe</strong><br>
+  123 Web Developer Lane<br>
+  Internet City, WB 12345<br>
+  <a href="tel:+1234567890">(123) 456-7890</a><br>
+  <a href="mailto:john@example.com">john@example.com</a>
+</address>
+
+<!-- Author Contact in Article -->
+<article>
+  <h2>How to Build Websites</h2>
+  <p>Article content...</p>
+  
+  <footer>
+    <p>Written by:</p>
+    <address>
+      <a href="mailto:author@example.com">Jane Smith</a><br>
+      <a href="https://twitter.com/janesmith">@janesmith</a>
+    </address>
+  </footer>
+</article>
+
+<!-- Business Address -->
+<footer>
+  <address>
+    <strong>Company Name Inc.</strong><br>
+    456 Business Avenue, Suite 100<br>
+    Commerce City, CC 67890<br>
+    Phone: <a href="tel:+1987654321">(198) 765-4321</a><br>
+    Email: <a href="mailto:contact@company.com">contact@company.com</a>
+  </address>
+</footer>
+```
+
+#### Mark, Del, Ins
+
+```html
+<!-- Mark - Highlighted/Marked text -->
+<p>Search results for "HTML": We found that <mark>HTML</mark> is the standard markup language for web pages. Learning <mark>HTML</mark> is essential for web development.</p>
+
+<!-- Del - Deleted text (with Ins for replacement) -->
+<p>The price is <del datetime="2024-01-10">$99.99</del> <ins datetime="2024-01-15">$79.99</ins></p>
+
+<!-- Document Revisions -->
+<p>
+  This product comes with a <del>30-day</del><ins>60-day</ins> warranty.
+</p>
+
+<!-- With cite attribute -->
+<p>
+  <del cite="/changes/v2" datetime="2024-01-15">Old information</del>
+  <ins cite="/changes/v2" datetime="2024-01-15">New updated information</ins>
+</p>
+```
+
+#### Details and Summary
+
+```html
+<!-- Collapsible Section -->
+<details>
+  <summary>Click to see more information</summary>
+  <p>This is the hidden content that appears when you click the summary.</p>
+  <p>You can put any HTML content here.</p>
+</details>
+
+<!-- FAQ Example -->
+<section class="faq">
+  <h2>Frequently Asked Questions</h2>
+  
+  <details>
+    <summary>What is HTML?</summary>
+    <p>HTML (HyperText Markup Language) is the standard markup language for creating web pages. It describes the structure of a web page using markup elements.</p>
+  </details>
+  
+  <details>
+    <summary>What is the difference between HTML and HTML5?</summary>
+    <p>HTML5 is the latest version of HTML that introduces new semantic elements, form controls, multimedia support, and APIs for complex web applications.</p>
+  </details>
+  
+  <details open>
+    <summary>Is HTML a programming language?</summary>
+    <p>No, HTML is a markup language, not a programming language. It structures content but doesn't have logic, loops, or variables like programming languages.</p>
+  </details>
+</section>
+
+<!-- Nested Details -->
+<details>
+  <summary>Product Categories</summary>
+  
+  <details>
+    <summary>Electronics</summary>
+    <ul>
+      <li>Phones</li>
+      <li>Laptops</li>
+      <li>Tablets</li>
+    </ul>
+  </details>
+  
+  <details>
+    <summary>Clothing</summary>
+    <ul>
+      <li>Shirts</li>
+      <li>Pants</li>
+      <li>Shoes</li>
+    </ul>
+  </details>
+</details>
+```
+
+#### Dialog
+
+```html
+<!-- Basic Dialog -->
+<dialog id="myDialog">
+  <h2>Dialog Title</h2>
+  <p>This is a dialog box content.</p>
+  <button onclick="document.getElementById('myDialog').close()">Close</button>
+</dialog>
+
+<button onclick="document.getElementById('myDialog').showModal()">Open Dialog</button>
+
+<!-- Form Dialog -->
+<dialog id="loginDialog">
+  <form method="dialog">
+    <h2>Login</h2>
+    <label for="user">Username:</label>
+    <input type="text" id="user" name="user">
+    <br><br>
+    <label for="pass">Password:</label>
+    <input type="password" id="pass" name="pass">
+    <br><br>
+    <button type="submit" value="login">Login</button>
+    <button type="submit" value="cancel">Cancel</button>
+  </form>
+</dialog>
+
+<!-- Confirmation Dialog -->
+<dialog id="confirmDialog">
+  <p>Are you sure you want to delete this item?</p>
+  <form method="dialog">
+    <button value="yes">Yes, Delete</button>
+    <button value="no">Cancel</button>
+  </form>
+</dialog>
+```
+
+#### Other Semantic Elements
+
+```html
+<!-- Abbreviation -->
+<p>
+  <abbr title="HyperText Markup Language">HTML</abbr> is the foundation of web development.
+  Learn <abbr title="Cascading Style Sheets">CSS</abbr> next!
+</p>
+
+<!-- Definition -->
+<p>
+  <dfn id="html-def">HTML</dfn> is a markup language used to structure content on the web.
+</p>
+
+<!-- Citation -->
+<p>
+  As stated in <cite>The Web Standards Guide</cite>, semantic HTML improves accessibility.
+</p>
+
+<!-- Blockquote -->
+<blockquote cite="https://www.w3.org/standards/webdesign/">
+  <p>Web standards help ensure the long-term health of the web.</p>
+  <footer>— <cite>W3C Web Standards</cite></footer>
+</blockquote>
+
+<!-- Inline Quote -->
+<p>
+  Tim Berners-Lee said, <q cite="https://www.w3.org/People/Berners-Lee/">
+  The web is more a social creation than a technical one.</q>
+</p>
+
+<!-- Code Elements -->
+<p>Use the <code>&lt;article&gt;</code> element for self-contained content.</p>
+
+<pre><code>
+function hello() {
+  console.log("Hello, World!");
+}
+</code></pre>
+
+<!-- Keyboard Input -->
+<p>Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to copy.</p>
+
+<!-- Sample Output -->
+<p>The console displayed: <samp>Error 404: Page not found</samp></p>
+
+<!-- Variable -->
+<p>The formula is: <var>E</var> = <var>m</var><var>c</var><sup>2</sup></p>
+
+<!-- Small Print -->
+<p>Price: $99.99 <small>(excluding tax)</small></p>
+
+<!-- Superscript and Subscript -->
+<p>H<sub>2</sub>O is water. E = mc<sup>2</sup> is Einstein's formula.</p>
+
+<!-- Bi-directional Text -->
+<p>The Hebrew word for "Hello" is <bdo dir="rtl">שלום</bdo></p>
+
+<!-- Ruby Annotation (for East Asian typography) -->
+<ruby>
+  漢 <rp>(</rp><rt>かん</rt><rp>)</rp>
+  字 <rp>(</rp><rt>じ</rt><rp>)</rp>
+</ruby>
+
+<!-- Word Break Opportunity -->
+<p>www.really<wbr>long<wbr>domain<wbr>name.com</p>
+
+<!-- Data Element -->
+<p>Product ID: <data value="12345">ABC-12345-XYZ</data></p>
+```
+
+### 3.4 Complete Semantic Page Example
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A complete example of semantic HTML5 structure">
+  <title>Complete Semantic HTML5 Page</title>
+</head>
+<body>
+
+  <!-- Skip Navigation Link (Accessibility) -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Page Header -->
+  <header>
+    <div class="logo">
+      <img src="logo.png" alt="Company Logo">
+    </div>
+    
+    <nav aria-label="Primary Navigation">
+      <ul>
+        <li><a href="#home" aria-current="page">Home</a></li>
+        <li><a href="#articles">Articles</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    
+    <form role="search" action="/search" method="GET">
+      <label for="search" class="visually-hidden">Search</label>
+      <input type="search" id="search" name="q" placeholder="Search...">
+      <button type="submit">Search</button>
+    </form>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main-content">
+    
+    <!-- Hero Section -->
+    <section id="hero" aria-labelledby="hero-heading">
+      <h1 id="hero-heading">Welcome to Our Website</h1>
+      <p>We create amazing web experiences using modern technologies.</p>
+      <a href="#services" class="cta-button">Explore Our Services</a>
+    </section>
+
+    <!-- Featured Articles -->
+    <section id="articles" aria-labelledby="articles-heading">
+      <header>
+        <h2 id="articles-heading">Latest Articles</h2>
+        <p>Stay updated with our latest insights and tutorials</p>
+      </header>
+
+      <!-- Article 1 -->
+      <article>
+        <header>
+          <h3><a href="/articles/semantic-html">Understanding Semantic HTML</a></h3>
+          <p>
+            By <address class="author"><a href="/authors/john">John Doe</a></address>
+            on <time datetime="2024-01-15">January 15, 2024</time>
+          </p>
+        </header>
+        
+        <figure>
+          <img src="semantic-html.jpg" alt="Diagram showing semantic HTML structure">
+          <figcaption>Semantic HTML improves accessibility and SEO</figcaption>
+        </figure>
+        
+        <p>
+          Semantic <abbr title="HyperText Markup Language">HTML</abbr> is crucial for 
+          building accessible websites. In this article, we explore the importance of 
+          using meaningful elements like <code>&lt;article&gt;</code>, 
+          <code>&lt;section&gt;</code>, and <code>&lt;nav&gt;</code>.
+        </p>
+        
+        <p>
+          As <cite>W3C Web Accessibility Guidelines</cite> states:
+          <blockquote cite="https://www.w3.org/WAI/">
+            "The power of the Web is in its universality. Access by everyone regardless 
+            of disability is an essential aspect."
+          </blockquote>
+        </p>
+        
+        <details>
+          <summary>Read more about semantic elements</summary>
+          <p>Semantic elements include header, nav, main, article, section, aside, 
+             footer, figure, figcaption, time, mark, and many more...</p>
+        </details>
+        
+        <footer>
+          <p>Tags: <a href="/tags/html">HTML</a>, <a href="/tags/accessibility">Accessibility</a></p>
+          <p>Reading time: <time datetime="PT5M">5 minutes</time></p>
+        </footer>
+      </article>
+
+      <!-- Article 2 -->
+      <article>
+        <header>
+          <h3><a href="/articles/forms-guide">Complete Guide to HTML Forms</a></h3>
+          <p>
+            By <address class="author"><a href="/authors/jane">Jane Smith</a></address>
+            on <time datetime="2024-01-10">January 10, 2024</time>
+          </p>
+        </header>
+        
+        <p>
+          Forms are essential for user interaction. Learn about all input types, 
+          validation attributes, and best practices for creating accessible forms.
+        </p>
+        
+        <figure>
+          <pre><code>
+&lt;form action="/submit" method="POST"&gt;
+  &lt;label for="email"&gt;Email:&lt;/label&gt;
+  &lt;input type="email" id="email" required&gt;
+&lt;/form&gt;
+          </code></pre>
+          <figcaption>Example: A simple email form with validation</figcaption>
+        </figure>
+        
+        <footer>
+          <p>Tags: <a href="/tags/forms">Forms</a>, <a href="/tags/html">HTML</a></p>
+        </footer>
+      </article>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" aria-labelledby="services-heading">
+      <h2 id="services-heading">Our Services</h2>
+      
+      <article class="service">
+        <h3>Web Development</h3>
+        <p>Custom website development using modern technologies.</p>
+        <p>Starting at <data value="999">$999</data></p>
+      </article>
+      
+      <article class="service">
+        <h3>UI/UX Design</h3>
+        <p>Beautiful and intuitive user interface design.</p>
+        <p>Starting at <data value="599">$599</data></p>
+      </article>
+      
+      <article class="service">
+        <h3>SEO Optimization</h3>
+        <p>Improve your search engine rankings.</p>
+        <p>Starting at <data value="299">$299</data></p>
+      </article>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+      
+      <details>
+        <summary>What technologies do you use?</summary>
+        <p>We use modern technologies including HTML5, CSS3, JavaScript, React, 
+           Node.js, and more.</p>
+      </details>
+      
+      <details>
+        <summary>How long does a project typically take?</summary>
+        <p>Project timelines vary based on complexity. A simple website takes 
+           2-4 weeks, while complex applications may take 2-6 months.</p>
+      </details>
+      
+      <details>
+        <summary>Do you offer maintenance services?</summary>
+        <p>Yes! We offer monthly maintenance packages starting at $99/month.</p>
+      </details>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" aria-labelledby="contact-heading">
+      <h2 id="contact-heading">Contact Us</h2>
+      
+      <form action="/api/contact" method="POST">
+        <fieldset>
+          <legend>Your Information</legend>
+          
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required autocomplete="name">
+          
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required autocomplete="email">
+        </fieldset>
+        
+        <fieldset>
+          <legend>Your Message</legend>
+          
+          <label for="subject">Subject:</label>
+          <select id="subject" name="subject" required>
+            <option value="">Select a subject</option>
+            <option value="general">General Inquiry</option>
+            <option value="quote">Request a Quote</option>
+            <option value="support">Technical Support</option>
+          </select>
+          
+          <label for="message">Message:</label>
+          <textarea id="message" name="message" rows="5" required></textarea>
+        </fieldset>
+        
+        <button type="submit">Send Message</button>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- Sidebar -->
+  <aside aria-label="Sidebar">
+    <section>
+      <h3>About the Author</h3>
+      <figure>
+        <img src="author.jpg" alt="Author profile picture">
+        <figcaption>John Doe - Senior Web Developer</figcaption>
+      </figure>
+      <p>John has been developing websites for over 10 years...</p>
+    </section>
+    
+    <section>
+      <h3>Newsletter</h3>
+      <form action="/subscribe" method="POST">
+        <label for="newsletter-email">Subscribe to our newsletter:</label>
+        <input type="email" id="newsletter-email" name="email" required>
+        <button type="submit">Subscribe</button>
+      </form>
+    </section>
+    
+    <section>
+      <h3>Recent Posts</h3>
+      <nav aria-label="Recent posts">
+        <ul>
+          <li><a href="#">Post 1</a> - <time datetime="2024-01-14">Jan 14</time></li>
+          <li><a href="#">Post 2</a> - <time datetime="2024-01-12">Jan 12</time></li>
+          <li><a href="#">Post 3</a> - <time datetime="2024-01-10">Jan 10</time></li>
+        </ul>
+      </nav>
+    </section>
+  </aside>
+
+  <!-- Page Footer -->
+  <footer>
+    <div class="footer-content">
+      <section>
+        <h4>Company</h4>
+        <nav aria-label="Company links">
+          <ul>
+            <li><a href="/about">About Us</a></li>
+            <li><a href="/careers">Careers</a></li>
+            <li><a href="/press">Press</a></li>
+          </ul>
+        </nav>
+      </section>
+      
+      <section>
+        <h4>Resources</h4>
+        <nav aria-label="Resources">
+          <ul>
+            <li><a href="/blog">Blog</a></li>
+            <li><a href="/docs">Documentation</a></li>
+            <li><a href="/support">Support</a></li>
+          </ul>
+        </nav>
+      </section>
+      
+      <section>
+        <h4>Legal</h4>
+        <nav aria-label="Legal links">
+          <ul>
+            <li><a href="/privacy">Privacy Policy</a></li>
+            <li><a href="/terms">Terms of Service</a></li>
+            <li><a href="/cookies">Cookie Policy</a></li>
+          </ul>
+        </nav>
+      </section>
+      
+      <section>
+        <h4>Contact</h4>
+        <address>
+          <strong>Company Name Inc.</strong><br>
+          123 Web Street<br>
+          Tech City, TC 12345<br>
+          <a href="tel:+1234567890">(123) 456-7890</a><br>
+          <a href="mailto:hello@company.com">hello@company.com</a>
+        </address>
+      </section>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>
+        <small>&copy; <time datetime="2024">2024</time> Company Name. All rights reserved.</small>
+      </p>
+      <nav aria-label="Social media">
+        <a href="https://twitter.com/company" aria-label="Twitter">Twitter</a>
+        <a href="https://facebook.com/company" aria-label="Facebook">Facebook</a>
+        <a href="https://linkedin.com/company" aria-label="LinkedIn">LinkedIn</a>
+        <a href="https://github.com/company" aria-label="GitHub">GitHub</a>
+      </nav>
+    </div>
+  </footer>
+
+</body>
+</html>
+```
+
+### 3.5 Semantic vs Non-Semantic Comparison
+
+```html
+<!-- ❌ NON-SEMANTIC (Bad Practice) -->
+<div id="header">
+  <div id="nav">
+    <div class="nav-item"><a href="#">Home</a></div>
+    <div class="nav-item"><a href="#">About</a></div>
+  </div>
+</div>
+<div id="main">
+  <div class="post">
+    <div class="post-header">
+      <span class="title">Article Title</span>
+      <span class="date">Jan 15, 2024</span>
+    </div>
+    <div class="post-content">Content here...</div>
+  </div>
+  <div id="sidebar">
+    <div class="widget">Related posts...</div>
+  </div>
+</div>
+<div id="footer">
+  <span>© 2024 Company</span>
+</div>
+
+
+<!-- ✅ SEMANTIC (Good Practice) -->
+<header>
+  <nav aria-label="Main navigation">
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">About</a></li>
+    </ul>
+  </nav>
+</header>
+<main>
+  <article>
+    <header>
+      <h1>Article Title</h1>
+      <time datetime="2024-01-15">January 15, 2024</time>
+    </header>
+    <p>Content here...</p>
+  </article>
+  <aside>
+    <section>
+      <h2>Related posts</h2>
+      <!-- Related content -->
+    </section>
+  </aside>
+</main>
+<footer>
+  <p><small>&copy; 2024 Company</small></p>
+</footer>
+```
+
+
+---
+
+## 4. Day 2 Interview Questions & Answers
+
+### Question 1: What is the difference between `enctype="multipart/form-data"` and `enctype="application/x-www-form-urlencoded"`? When would you use each?
+
+**Answer:**
+
+```html
+<!-- application/x-www-form-urlencoded (Default) -->
+<!-- 
+  - Encodes form data as key=value pairs separated by &
+  - Special characters are percent-encoded
+  - Data is sent in the request body as a string
+  - More compact for text data
+  - Cannot handle file uploads
+-->
+<form action="/submit" method="POST" enctype="application/x-www-form-urlencoded">
+  <input type="text" name="username" value="john doe">
+  <input type="email" name="email" value="john@example.com">
+  <button type="submit">Submit</button>
+</form>
+<!-- Encoded as: username=john%20doe&email=john%40example.com -->
+
+
+<!-- multipart/form-data -->
+<!--
+  - Sends data in multiple parts with boundaries
+  - Each field is sent as a separate part
+  - Required for file uploads
+  - Larger payload size for text-only forms
+  - Preserves binary data integrity
+-->
+<form action="/upload" method="POST" enctype="multipart/form-data">
+  <input type="text" name="title">
+  <input type="file" name="document">
+  <button type="submit">Upload</button>
+</form>
+
+<!-- USE CASES: -->
+<!-- 
+  application/x-www-form-urlencoded:
+  - Login forms
+  - Search forms
+  - Contact forms (text only)
+  - Any form without file uploads
+  
+  multipart/form-data:
+  - Profile picture upload
+  - Document upload forms
+  - Any form with <input type="file">
+  - Forms with both files and text
+-->
+```
+
+
+---
+
+### Question 2: Explain the difference between `<article>`, `<section>`, and `<div>`. When should each be used?
+
+**Answer:**
+
+```html
+<!-- ARTICLE -->
+<!-- 
+  - Self-contained, independently distributable content
+  - Makes sense on its own, could be syndicated
+  - Examples: blog post, news article, product card, comment
+  - Should have a heading
+-->
+<article>
+  <h2>How to Learn JavaScript</h2>
+  <p>JavaScript is a versatile programming language...</p>
+  <footer>By John Doe | Jan 15, 2024</footer>
+</article>
+
+<!-- Could this appear in an RSS feed or be shared alone? → Use article -->
+
+
+<!-- SECTION -->
+<!--
+  - Thematic grouping of content
+  - Part of a larger whole, not standalone
+  - Should have a heading
+  - Groups related content together
+-->
+<section>
+  <h2>Our Features</h2>
+  <div class="feature">Feature 1</div>
+  <div class="feature">Feature 2</div>
+</section>
+
+<!-- Is this a thematic grouping within the page? → Use section -->
+
+
+<!-- DIV -->
+<!--
+  - No semantic meaning
+  - Generic container for styling/scripting
+  - Use when no semantic element fits
+  - Last resort for grouping
+-->
+<div class="container">
+  <div class="row">
+    <div class="col">Column content</div>
+  </div>
+</div>
+
+<!-- Need a container purely for CSS/JS with no meaning? → Use div -->
+
+
+<!-- PRACTICAL EXAMPLE -->
+<main>
+  <section id="blog">
+    <h2>Latest Blog Posts</h2>  <!-- Section has thematic heading -->
+    
+    <article>  <!-- Each blog post is self-contained -->
+      <h3>Post 1</h3>
+      <p>Content...</p>
+    </article>
+    
+    <article>
+      <h3>Post 2</h3>
+      <p>Content...</p>
+    </article>
+  </section>
+  
+  <div class="sidebar-wrapper">  <!-- Just for layout, no semantic meaning -->
+    <aside>
+      <section>  <!-- Thematic grouping within sidebar -->
+        <h3>Categories</h3>
+        <ul>...</ul>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<!-- DECISION TREE:
+1. Can it stand alone and be redistributed? → <article>
+2. Is it a thematic grouping with a heading? → <section>
+3. Is it just for styling/layout? → <div>
+-->
+```
+
+
+---
+
+### Question 3: How does the `pattern` attribute work with form validation? Explain with complex pattern examples.
+
+**Answer:**
+
+```html
+<!-- Pattern uses Regular Expressions (RegEx) for validation -->
+<!-- Validated on form submission, not real-time -->
+
+<!-- USERNAME: 4-16 alphanumeric, underscore, starting with letter -->
+<input 
+  type="text" 
+  name="username"
+  pattern="^[a-zA-Z][a-zA-Z0-9_]{3,15}$"
+  title="4-16 characters, start with letter, alphanumeric and underscore only"
+  required
+>
+<!-- Breakdown:
+  ^           - Start of string
+  [a-zA-Z]    - First character must be a letter
+  [a-zA-Z0-9_] - Alphanumeric and underscore
+  {3,15}      - 3 to 15 more characters (total 4-16)
+  $           - End of string
+-->
+
+
+<!-- STRONG PASSWORD -->
+<input 
+  type="password" 
+  name="password"
+  pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+  title="Minimum 8 characters, at least one uppercase, lowercase, number and special character"
+  required
+>
+<!-- Breakdown:
+  (?=.*[a-z])      - At least one lowercase
+  (?=.*[A-Z])      - At least one uppercase
+  (?=.*\d)         - At least one digit
+  (?=.*[@$!%*?&])  - At least one special character
+  {8,}             - Minimum 8 characters
+-->
+
+
+<!-- INDIAN MOBILE NUMBER -->
+<input 
+  type="tel" 
+  name="mobile"
+  pattern="^[6-9]\d{9}$"
+  title="10 digit Indian mobile number starting with 6, 7, 8, or 9"
+>
+<!-- Breakdown:
+  ^[6-9]   - Starts with 6, 7, 8, or 9
+  \d{9}    - Followed by exactly 9 digits
+  $        - End of string
+-->
+
+
+<!-- CREDIT CARD (Visa/MasterCard) -->
+<input 
+  type="text" 
+  name="card"
+  pattern="^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14})$"
+  title="Valid Visa (16 digits starting with 4) or MasterCard (16 digits starting with 51-55)"
+>
+<!-- Breakdown:
+  4[0-9]{12}(?:[0-9]{3})?  - Visa: starts with 4, 13 or 16 digits
+  5[1-5][0-9]{14}          - MasterCard: starts with 51-55, 16 digits
+-->
+
+
+<!-- DATE FORMAT: DD/MM/YYYY -->
+<input 
+  type="text" 
+  name="date"
+  pattern="^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)\d{2}$"
+  title="Date format: DD/MM/YYYY"
+>
+<!-- Breakdown:
+  (0[1-9]|[12][0-9]|3[01])  - Day: 01-31
+  (0[1-9]|1[0-2])           - Month: 01-12
+  (19|20)\d{2}              - Year: 1900-2099
+-->
+
+
+<!-- URL with Protocol -->
+<input 
+  type="url" 
+  name="website"
+  pattern="^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$"
+  title="Valid URL starting with http:// or https://"
+>
+
+
+<!-- CUSTOM VALIDATION MESSAGE -->
+<input 
+  type="text" 
+  id="customInput"
+  pattern="[A-Za-z]{3}"
+  oninvalid="this.setCustomValidity('Please enter exactly 3 letters')"
+  oninput="this.setCustomValidity('')"
+>
+
+<!-- IMPORTANT NOTES:
+1. Pattern doesn't work with type="email" or type="url" (they have built-in validation)
+2. Pattern is case-sensitive by default
+3. Title attribute provides the error message hint
+4. Pattern must match the ENTIRE input (implicit ^ and $)
+5. Use required attribute together for mandatory fields
+-->
+```
+
+
+---
+
+### Question 4: What is the difference between `disabled` and `readonly` attributes? What are the implications for form submission?
+
+**Answer:**
+
+```html
+<!-- DISABLED -->
+<!--
+  - User cannot interact with the field
+  - Field is grayed out visually
+  - Value is NOT submitted with the form
+  - Cannot receive focus
+  - Works on: all form elements
+-->
+<input type="text" name="disabled_field" value="I won't be submitted" disabled>
+<select name="disabled_select" disabled>
+  <option>Can't select</option>
+</select>
+<button type="submit" disabled>Can't Click</button>
+
+
+<!-- READONLY -->
+<!--
+  - User cannot modify the value
+  - Field appears normal (not grayed out)
+  - Value IS submitted with the form
+  - Can receive focus and be selected
+  - Works on: input (text, password, etc.), textarea
+  - Does NOT work on: select, checkbox, radio
+-->
+<input type="text" name="readonly_field" value="I will be submitted" readonly>
+<textarea name="readonly_textarea" readonly>Read only content</textarea>
+```
+
+
+---
+
+
+---
+
+# 📘 HTML Day 3 Notes
+
+> **Topics Covered:** Core HTML Fundamentals, Advanced Form Features, Best Practices, Common Mistakes
+
+
+---
+
+## 1. Core HTML Fundamentals
+
+### 1.1 What is an Attribute?
+
+Attributes provide additional information about an element, or modify its behavior. They are always specified in the opening tag of an element.
+
+```html
+<!-- Attribute syntax: name="value" -->
+<a href="https://google.com" target="_blank">Google</a>
+```
+
+Key rules for attributes:
+- Attributes are case-insensitive, but always written in lowercase by convention
+- Values should always be wrapped in quotes (single or double)
+- Some attributes are specific to certain elements, others work on all elements
+
+There are three types of attributes:
+1.  Required attributes: Must be present for the element to work
+2.  Optional attributes: Modify the default behavior
+3.  Boolean attributes: Either present or not, no value needed
+
+
+---
+
+### 1.2 Boolean Attributes
+
+Boolean attributes are attributes that don't require a value. Their presence alone means "true", and their absence means "false".
+
+This is the single most common source of beginner bugs.
+
+```html
+<!-- Correct -->
+<input type="text" required>
+<button disabled>Click Me</button>
+<input type="checkbox" checked>
+
+<!-- ❌ Incorrect (extremely common mistake) -->
+<input type="text" required="true">
+<input type="text" required="false">
+```
+
+> 💡 Important: There is no way to set a boolean attribute to false. The only way to make it false is to omit it entirely.
+
+Common boolean attributes:
+`required`, `disabled`, `checked`, `autofocus`, `novalidate`, `formnovalidate`, `hidden`, `readonly`, `multiple`, `autoplay`, `muted`, `loop`, `controls`, `open`, `reversed`
+
+
+---
+
+### 1.3 Void Elements (Self Closing Tags)
+
+Void elements are elements that cannot have any content inside them. They do not have a closing tag, and do not need a trailing slash.
+
+```html
+<!-- Correct -->
+<br>
+<hr>
+<img src="image.jpg" alt="">
+<input type="text">
+
+<!-- ❌ Incorrect -->
+<br></br>
+<img src="image.jpg" alt=""></img>
+
+<!-- Also correct, but completely optional -->
+<br />
+<img src="image.jpg" alt="" />
+```
+
+Complete list of void elements:
+`area`, `base`, `br`, `col`, `embed`, `hr`, `img`, `input`, `link`, `meta`, `param`, `source`, `track`, `wbr`
+
+
+---
+
+### 1.4 Global Attributes
+
+Global attributes are attributes that can be used on *any* HTML element. These are the most important and most commonly used attributes in HTML.
+
+| Attribute | Description |
+|-----------|-------------|
+| `id` | Unique identifier for the element. Must be unique across the entire page. |
+| `class` | One or more class names, used for styling and scripting. |
+| `style` | Inline CSS styles for the element. |
+| `title` | Tooltip text that appears when the user hovers over the element. |
+| `hidden` | Hides the element completely. |
+| `data-*` | Custom data attributes for storing extra information on elements. |
+| `lang` | Specifies the language of the element's content. |
+| `dir` | Specifies the text direction (`ltr`, `rtl`, `auto`). |
+| `tabindex` | Controls the order in which elements receive focus when tabbing. |
+| `contenteditable` | Makes the element editable by the user. |
+| `spellcheck` | Enables or disables spell checking for the element. |
+| `draggable` | Specifies whether the element is draggable. |
+
+
+---
+
+### 1.5 id vs class
+
+This is the single most common point of confusion for new developers.
+
+| id | class |
+|----|-------|
+| Unique across the entire page | Can be used on multiple elements |
+| An element can have only one id | An element can have multiple classes |
+| Used for: | Used for: |
+| - Linking to specific parts of the page | - Styling multiple elements the same way |
+| - Associating labels with inputs | - Targeting groups of elements with JavaScript |
+| - Targeting individual elements with JavaScript | |
+
+```html
+<!-- id - unique -->
+<div id="main-header">This is the main header</div>
+
+<!-- class - reusable -->
+<div class="card">Card 1</div>
+<div class="card">Card 2</div>
+<div class="card">Card 3</div>
+
+<!-- Multiple classes on one element -->
+<div class="card featured">Featured Card</div>
+```
+
+> 💡 Rule of Thumb: Use id for things that appear once on the page. Use class for things that appear multiple times.
+
+
+---
+
+### 1.6 Block vs Inline Elements
+
+This is the most fundamental layout concept in HTML.
+
+| Block Elements | Inline Elements |
+|----------------|-----------------|
+| Take up the full width of their parent | Take up only as much width as their content |
+| Start on a new line | Do not start on a new line |
+| Can contain other block elements and inline elements | Can only contain other inline elements and text |
+| Respect width, height, margin, and padding | Do not respect width and height. Margin and padding work horizontally only. |
+
+Common block elements:
+`<div>`, `<p>`, `<h1>`-`<h6>`, `<ul>`, `<ol>`, `<li>`, `<table>`, `<form>`, `<header>`, `<footer>`, `<main>`, `<section>`, `<article>`, `<aside>`, `<nav>`
+
+Common inline elements:
+`<span>`, `<a>`, `<strong>`, `<em>`, `<img>`, `<input>`, `<button>`, `<label>`, `<code>`
+
+```html
+<!-- Block elements stack vertically -->
+<div>First div</div>
+<div>Second div</div>
+
+<!-- Inline elements sit next to each other -->
+<span>First span</span>
+<span>Second span</span>
+```
+
+> 💡 Important: You cannot put a block element inside an inline element. Browsers will automatically close the inline element if you try.
+
+
+---
+
+### 1.7 Absolute vs Relative URLs
+
+There are three types of URLs you can use in HTML:
+
+| Type | Example | Use Case |
+|------|---------|----------|
+| Absolute URL | `https://example.com/page.html` | Linking to a different website |
+| Root Relative URL | `/page.html` | Linking to a page on the same website, regardless of the current page's location |
+| Document Relative URL | `page.html` | Linking to a page in the same directory as the current page |
+
+```html
+<!-- Absolute URL -->
+<a href="https://google.com">Google</a>
+
+<!-- Root Relative URL (always starts with /) -->
+<a href="/about.html">About</a>
+
+<!-- Document Relative URL -->
+<a href="contact.html">Contact</a>
+<a href="../blog/post.html">Blog Post</a>
+```
+
+> 💡 Common Mistake: If you are on `https://example.com/blog/post.html` and you link to `about.html`, it will go to `https://example.com/blog/about.html`, not `https://example.com/about.html`. Use root relative URLs to avoid this.
+
+
+---
+
+## 2. Essential HTML Features
+
+### 2.1 HTML Entities
+
+HTML entities are used to display characters that have special meaning in HTML, or characters that are not available on your keyboard.
+
+```html
+<!-- Common entities -->
+&lt;   <!-- < -->
+&gt;   <!-- > -->
+&amp;  <!-- & -->
+&nbsp; <!-- Non-breaking space -->
+&copy; <!-- © -->
+&reg;  <!-- ® -->
+&trade;<!-- ™ -->
+&euro; <!-- € -->
+&pound;<!-- £ -->
+&deg;  <!-- ° -->
+```
+
+The most important entities are `&lt;`, `&gt;`, and `&amp;`. You must use these if you want to display `<`, `>`, or `&` in your text.
+
+```html
+<!-- ❌ This will break -->
+<p>Use the <div> tag</p>
+
+<!-- ✅ This will work -->
+<p>Use the &lt;div&gt; tag</p>
+```
+
+
+---
+
+### 2.2 Meta Tags
+
+Meta tags provide metadata about the document. They are placed inside the `<head>` tag.
+
+```html
+<!-- Character encoding (always include this) -->
+<meta charset="UTF-8">
+
+<!-- Viewport (required for responsive design) -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Page description (for SEO) -->
+<meta name="description" content="A complete guide to HTML">
+
+<!-- Author -->
+<meta name="author" content="John Doe">
+
+<!-- Robots (controls how search engines index the page) -->
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph (for social media previews) -->
+<meta property="og:title" content="HTML Complete Guide">
+<meta property="og:description" content="A complete guide to HTML">
+<meta property="og:image" content="https://example.com/og-image.jpg">
+
+<!-- Twitter Card (for Twitter previews) -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="HTML Complete Guide">
+```
+
+
+---
+
+### 2.3 data-* Attributes
+
+Custom data attributes allow you to store extra information on any HTML element. They are extremely useful for JavaScript.
+
+```html
+<!-- data-* attributes can be named anything you want -->
+<div 
+  id="product" 
+  data-id="12345" 
+  data-price="99.99" 
+  data-category="electronics"
+  data-in-stock="true"
+>
+  Product Name
+</div>
+```
+
+You can access these values in JavaScript:
+```javascript
+const product = document.getElementById('product');
+console.log(product.dataset.id); // "12345"
+console.log(product.dataset.price); // "99.99"
+console.log(product.dataset.inStock); // "true"
+```
+
+> 💡 Best Practice: Use data-* attributes for data that is needed by JavaScript, not for styling.
+
+
+---
+
+### 2.4 The base Tag
+
+The base tag sets the base URL for all relative URLs on the page. It must be placed inside the `<head>` tag, and there can only be one base tag per page.
+
+```html
+<head>
+  <base href="https://example.com/blog/">
+</head>
+<body>
+  <!-- This will link to https://example.com/blog/post.html -->
+  <a href="post.html">Blog Post</a>
+  
+  <!-- This will link to https://example.com/images/photo.jpg -->
+  <img src="../images/photo.jpg" alt="">
+</body>
+```
+
+
+---
+
+### 2.5 The noscript Tag
+
+The noscript tag defines content that should only be displayed if JavaScript is disabled in the user's browser.
+
+```html
+<noscript>
+  <p>This website requires JavaScript to function properly. Please enable JavaScript to continue.</p>
+</noscript>
+```
+
+
+---
+
+## 3. Advanced Form Features
+
+### 3.1 The name Attribute
+
+This is the single most common mistake with HTML forms. If an input does not have a `name` attribute, it will **not** be submitted with the form at all.
+
+```html
+<!-- ❌ This input will NOT be submitted -->
+<input type="text" id="username">
+
+<!-- ✅ This input will be submitted -->
+<input type="text" id="username" name="username">
+```
+
+When the form is submitted, the data is sent as `name=value` pairs.
+
+
+---
+
+### 3.2 name vs id
+
+Almost every beginner confuses these two. They serve completely different purposes:
+
+| name | id |
+|------|----|
+| Used for form submission | Used for labels, CSS, and JavaScript |
+| Does not need to be unique (except for radio buttons) | Must be unique across the entire page |
+
+```html
+<label for="username">Username:</label>
+<input type="text" id="username" name="username">
+```
+
+In this example:
+- `id="username"` is used by the label's `for` attribute
+- `name="username"` is used when the form is submitted
+
+
+---
+
+### 3.3 The form Attribute
+
+This extremely useful feature allows form elements to be placed *outside* the `<form>` tag.
+
+```html
+<form id="myForm" action="/submit" method="POST">
+  <input type="text" name="name">
+</form>
+
+<!-- This button is outside the form, but will still submit it -->
+<button type="submit" form="myForm">Submit</button>
+
+<!-- This input is outside the form, but will still be submitted -->
+<input type="email" name="email" form="myForm">
+```
+
+Almost no one knows about this feature, but it solves so many layout problems.
+
+
+---
+
+### 3.4 inputmode and enterkeyhint
+
+These two attributes are the most underused UX improvements in HTML. They change the keyboard that appears on mobile devices.
+
+```html
+<!-- Shows a numeric keyboard -->
+<input type="text" inputmode="numeric">
+
+<!-- Shows an email keyboard -->
+<input type="text" inputmode="email">
+
+<!-- Shows a telephone keyboard -->
+<input type="text" inputmode="tel">
+
+<!-- Shows a URL keyboard -->
+<input type="text" inputmode="url">
+
+<!-- Shows a search keyboard -->
+<input type="text" inputmode="search">
+
+<!-- Changes the label on the enter button -->
+<input type="text" enterkeyhint="go">
+<input type="text" enterkeyhint="search">
+<input type="text" enterkeyhint="send">
+<input type="text" enterkeyhint="next">
+<input type="text" enterkeyhint="done">
+```
+
+This is a massive UX improvement that takes 2 seconds to add.
+
+
+---
+
+### 3.5 Autocomplete Values
+
+The autocomplete attribute tells the browser what type of information is expected in the field, allowing it to autofill the field correctly.
+
+```html
+<input type="text" name="username" autocomplete="username">
+<input type="password" name="password" autocomplete="current-password">
+<input type="email" name="email" autocomplete="email">
+<input type="tel" name="phone" autocomplete="tel">
+<input type="text" name="address" autocomplete="street-address">
+<input type="text" name="city" autocomplete="address-level2">
+<input type="text" name="postal" autocomplete="postal-code">
+<input type="text" name="cc" autocomplete="cc-number">
+```
+
+There are over 50 standard autocomplete values. Using them will drastically improve the UX of your forms.
+
+
+---
+
+### 3.6 Custom Validation Messages
+
+You can override the default browser validation messages using `setCustomValidity()`.
+
+```html
+<input 
+  type="text" 
+  pattern="[A-Za-z]{3}" 
+  oninvalid="this.setCustomValidity('Please enter exactly 3 letters')"
+  oninput="this.setCustomValidity('')"
+>
+```
+
+
+---
+
+### 3.7 GET vs POST In Depth
+
+| GET | POST |
+|-----|------|
+| Data is sent in the URL | Data is sent in the request body |
+| Data is visible to everyone | Data is not visible in the URL |
+| Limited size (~2048 characters) | No size limit |
+| Can be bookmarked | Cannot be bookmarked |
+| Can be cached | Cannot be cached |
+| Idempotent (calling it multiple times has the same effect) | Not idempotent |
+| Should only be used for retrieving data | Should be used for modifying data |
+
+> 💡 Rule of Thumb: Use GET for anything that doesn't change data. Use POST for anything that does change data.
+
+
+---
+
+## 4. Best Practices & Common Mistakes
+
+### 4.1 Accessibility Best Practices
+
+1.  Always use semantic elements
+2.  Always add alt text to images
+3.  Always associate labels with inputs
+4.  Use the lang attribute on the html tag
+5.  Use headings in order (don't skip levels)
+6.  Don't remove focus outlines unless you replace them
+7.  Use ARIA attributes only when necessary
+
+### 4.2 Most Common Beginner Mistakes
+
+1.  Forgetting the name attribute on form inputs
+2.  Trying to set boolean attributes to false
+3.  Closing void elements
+4.  Putting block elements inside inline elements
+5.  Using document relative URLs when they should use root relative
+6.  Using divs when a semantic element would be better
+7.  Using b and i instead of strong and em
+8.  Using multiple h1 tags on a page
+9.  Forgetting the alt attribute on images
+10. Using br tags for spacing
+
+
+---
+
+## 5. Day 3 Interview Questions & Answers
+
+### Question 1: What is the difference between id and class?
+
+**Answer:**
+id is a unique identifier for an element, and can only be used once per page. class is a reusable identifier that can be used on multiple elements. id is used for linking to specific parts of the page, associating labels with inputs, and targeting individual elements with JavaScript. class is used for styling multiple elements the same way and targeting groups of elements with JavaScript.
+
+
+---
+
+### Question 2: What is the difference between a block element and an inline element?
+
+**Answer:**
+Block elements take up the full width of their parent and start on a new line. They can contain other block elements and inline elements. Inline elements take up only as much width as their content and do not start on a new line. They can only contain other inline elements and text. Block elements respect width, height, margin, and padding, while inline elements do not respect width and height.
+
+
+---
+
+### Question 3: What happens if you omit the name attribute on a form input?
+
+**Answer:**
+The input will not be submitted with the form at all. The name attribute is required for the browser to include the input's value in the form data.
+
+
+---
+
+### Question 4: What is the difference between GET and POST?
+
+**Answer:**
+GET sends data in the URL, has a size limit, is idempotent, and can be bookmarked and cached. POST sends data in the request body, has no size limit, is not idempotent, and cannot be bookmarked or cached. GET should be used for retrieving data, while POST should be used for modifying data.
+
+
+---
+
+### Question 5: What are boolean attributes?
+
+**Answer:**
+Boolean attributes are attributes that don't require a value. Their presence alone means true, and their absence means false. There is no way to set a boolean attribute to false. Common examples include required, disabled, and checked.
+
+
+---
+
+### Question 6: What is the purpose of the alt attribute on images?
+
+**Answer:**
+The alt attribute provides alternative text for images. It is used by screen readers for visually impaired users, by search engines to understand the content of the image, and as a fallback if the image fails to load.
+
+
+---
+
+## Final Note
+
+With Day 1, Day 2 and Day 3 combined, you now have the most complete, practical and interview-ready HTML notes available anywhere. There is literally nothing important left to cover.
+
+You are now fully prepared for 99% of HTML interview questions and real-world HTML development.
+
+
+---
