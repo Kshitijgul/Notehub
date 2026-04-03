@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-const API = 'http://localhost:3001';
-const WS  = 'ws://localhost:3001';
+// const API = 'http://localhost:3001';
+// const WS  = 'ws://localhost:3001';
+
+const isProduction = window.location.protocol === 'https:';
+const API = isProduction ? window.location.origin : 'http://localhost:3001';
+const WS = isProduction 
+  ? `wss://${window.location.host}` 
+  : 'ws://localhost:3001';
 
 export function useContentWatcher() {
   const [state, setState] = useState({

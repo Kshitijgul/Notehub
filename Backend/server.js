@@ -11,6 +11,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const app = express();
+
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 const GITHUB_OWNER = process.env.GITHUB_OWNER || '';
 const GITHUB_REPO = process.env.GITHUB_REPO || '';
@@ -194,12 +197,17 @@ async function pollGithubTree() {
 setInterval(pollGithubTree, 30000);
 pollGithubTree();
 
+
+// Production static serving
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+  });
+}
+
 // ── Start ─────────────────────────────────────────────────────────────────────
 
-server.listen(PORT, () => {
-  console.log(`\n🚀  Notes server      →  http://localhost:${PORT}`);
-  console.log(`🔌  WebSocket         →  ws://localhost:${PORT}`);
-  console.log(`🐙  GitHub repository →  ${GITHUB_OWNER}/${GITHUB_REPO}`);
-  console.log(`🌿  Branch            →  ${GITHUB_BRANCH}`);
-  console.log(`📁  Content path      →  ${GITHUB_CONTENT_PATH}\n`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`\n🚀 Notes server running on port ${PORT}`);
 });
