@@ -18,7 +18,7 @@ const GITHUB_OWNER = process.env.GITHUB_OWNER || '';
 const GITHUB_REPO = process.env.GITHUB_REPO || '';
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
 const GITHUB_CONTENT_PATH = (process.env.GITHUB_CONTENT_PATH || '').trim();
-const PORT = Number(process.env.PORT || 3001);
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
 
 const octokit = new Octokit({
   auth: GITHUB_TOKEN || undefined,
