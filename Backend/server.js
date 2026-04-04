@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config();
 
 const app = express();
 
@@ -206,7 +206,9 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // ── Start ─────────────────────────────────────────────────────────────────────
+console.log("ENV PORT:", process.env.PORT);
+console.log("FINAL PORT:", PORT);
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, () => {
   console.log(`\n🚀 Notes server running on port ${PORT}`);
 });
