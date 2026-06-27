@@ -1,5 +1,70 @@
 import { useMemo, useState, useEffect, useRef, memo } from 'react';
 import LazyImport from './LazyImport';
+
+// ──────────────────────────────────────────────────────────────────────
+// GitHub-compatible slug generator
+// Handles &, special characters consistently
+// ──────────────────────────────────────────────────────────────────────
+function generateSlug(text) {
+  return String(text)
+    .toLowerCase()
+    .trim()
+    // Remove HTML tags
+    .replace(/<[!\/a-z].*?>/gi, '')
+    // Replace & with empty (matches GitHub behavior)
+    .replace(/&/g, '')
+    // Remove all other special characters except word chars, spaces, hyphens
+    .replace(/[^\w\s-]/g, '')
+    // Replace spaces with hyphens
+    .replace(/\s+/g, '-')
+    // Collapse multiple hyphens into one
+    .replace(/-+/g, '-')
+    // Remove leading/trailing hyphens
+    .replace(/^-|-$/g, '');
+}
+
+// Generate ALL possible slug variations for matching
+function generateSlugVariations(text) {
+  const variations = new Set();
+  const clean = String(text).toLowerCase().trim().replace(/<[!\/a-z].*?>/gi, '');
+  
+  // Variation 1: Standard - & removed, special chars removed
+  variations.add(clean
+    .replace(/&/g, '')
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+  );
+  
+  // Variation 2: & → and
+  variations.add(clean
+    .replace(/&/g, 'and')
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+  );
+  
+  // Variation 3: & → empty, keep double dashes
+  variations.add(clean
+    .replace(/&/g, '')
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/^-|-$/g, '')
+  );
+  
+  // Variation 4: Keep & as-is (URL encoded later)
+  variations.add(clean
+    .replace(/[^\w\s&-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+  );
+  
+  return Array.from(variations).filter(v => v.length > 0);
+}
+
 // ──────────────────────────────────────────────────────────────────────
 // Load marked from CDN (no npm install needed)
 // ──────────────────────────────────────────────────────────────────────
@@ -25,16 +90,16 @@ function loadMarked() {
         mangle: false,
       });
       
-      // Custom renderer for heading IDs
+      // Custom renderer for heading IDs - generates multiple IDs for matching variations
       const renderer = new marked.Renderer();
       renderer.heading = function(text, level, raw) {
-        const slug = String(raw || text)
-          .toLowerCase()
-          .trim()
-          .replace(/<[!\/a-z].*?>/gi, '')
-          .replace(/[^\w\s-]/g, '')
-          .replace(/\s+/g, '-');
-        return `<h${level} id="${slug}">${text}</h${level}>`;
+        const variations = generateSlugVariations(String(raw || text));
+        const primaryId = variations[0] || 'heading';
+        // Add invisible anchor tags for all alternate slugs
+        const alternateAnchors = variations.slice(1)
+          .map(slug => `<a id="${slug}" class="slug-anchor"></a>`)
+          .join('');
+        return `<h${level} id="${primaryId}">${alternateAnchors}${text}</h${level}>`;
       };
       
       marked.use({ renderer });
@@ -46,20 +111,56 @@ function loadMarked() {
   
   return markedPromise;
 }
+
 // ──────────────────────────────────────────────────────────────────────
-// Smart anchor link handler
+// Smart anchor link handler - tries multiple ID variations
 // ──────────────────────────────────────────────────────────────────────
-async function scrollToAnchor(targetId, maxAttempts = 30) {
+function tryFindElement(targetId) {
+  // Try exact match first
   let element = document.getElementById(targetId);
+  if (element) return element;
+  
+  // Try URL-decoded
+  try {
+    const decoded = decodeURIComponent(targetId);
+    element = document.getElementById(decoded);
+    if (element) return element;
+  } catch (e) {
+    // Continue
+  }
+  
+  // Try all variations of the slug
+  const variations = generateSlugVariations(targetId);
+  for (const slug of variations) {
+    element = document.getElementById(slug);
+    if (element) return element;
+  }
+  
+  // Try matching by heading text content (last resort)
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const targetSlug = generateSlug(targetId);
+  for (const h of headings) {
+    const headingSlug = generateSlug(h.textContent);
+    if (headingSlug === targetSlug || headingSlug.includes(targetSlug)) {
+      return h;
+    }
+  }
+  
+  return null;
+}
+
+async function scrollToAnchor(targetId, maxAttempts = 30) {
+  let element = tryFindElement(targetId);
   if (element) {
     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return true;
   }
+
   window.dispatchEvent(new CustomEvent('force-load-all-chunks'));
   
   for (let i = 0; i < maxAttempts; i++) {
     await new Promise(resolve => setTimeout(resolve, 200));
-    element = document.getElementById(targetId);
+    element = tryFindElement(targetId);
     if (element) {
       await new Promise(resolve => setTimeout(resolve, 100));
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -67,8 +168,10 @@ async function scrollToAnchor(targetId, maxAttempts = 30) {
     }
   }
   
+  console.warn(`Anchor not found: #${targetId}`);
   return false;
 }
+
 // Global click handler for anchor links (attached once)
 let clickHandlerAttached = false;
 function attachGlobalLinkHandler() {
@@ -84,6 +187,7 @@ function attachGlobalLinkHandler() {
     }
   });
 }
+
 // ──────────────────────────────────────────────────────────────────────
 // Load Mermaid from CDN
 // ──────────────────────────────────────────────────────────────────────
@@ -106,6 +210,7 @@ function loadMermaid() {
   });
   return mermaidPromise;
 }
+
 // ──────────────────────────────────────────────────────────────────────
 // Render mermaid into a DOM element (lazy)
 // ──────────────────────────────────────────────────────────────────────
@@ -131,6 +236,7 @@ async function renderMermaidInto(element, chart) {
   
   observer.observe(element);
 }
+
 // ──────────────────────────────────────────────────────────────────────
 // Parse markdown with marked
 // ──────────────────────────────────────────────────────────────────────
@@ -165,6 +271,7 @@ async function parseMarkdownFast(content) {
   
   return { html, mermaidBlocks };
 }
+
 // ──────────────────────────────────────────────────────────────────────
 // Resolve relative @import paths
 // ──────────────────────────────────────────────────────────────────────
@@ -190,6 +297,7 @@ function resolveImportPath(importPath, currentFolder) {
   
   return resolved.replace(/\/+/g, '/');
 }
+
 // ──────────────────────────────────────────────────────────────────────
 // Split content on @import lines
 // ──────────────────────────────────────────────────────────────────────
@@ -226,6 +334,7 @@ function splitContent(content, currentFolder) {
   
   return parts;
 }
+
 // ──────────────────────────────────────────────────────────────────────
 // FAST markdown chunk - uses dangerouslySetInnerHTML
 // ──────────────────────────────────────────────────────────────────────
@@ -233,6 +342,7 @@ const FastMarkdownChunk = memo(function FastMarkdownChunk({ content }) {
   const containerRef = useRef(null);
   const [html, setHtml] = useState('');
   const [mermaidBlocks, setMermaidBlocks] = useState([]);
+
   // Parse markdown (async because marked loads from CDN)
   useEffect(() => {
     let cancelled = false;
@@ -244,6 +354,7 @@ const FastMarkdownChunk = memo(function FastMarkdownChunk({ content }) {
     });
     return () => { cancelled = true; };
   }, [content]);
+
   // Mount Mermaid diagrams after HTML is rendered
   useEffect(() => {
     if (!containerRef.current || mermaidBlocks.length === 0) return;
@@ -258,6 +369,7 @@ const FastMarkdownChunk = memo(function FastMarkdownChunk({ content }) {
       }
     });
   }, [html, mermaidBlocks]);
+
   if (!html) {
     return (
       <div style={{ padding: '12px', color: '#666', fontStyle: 'italic', fontSize: '13px' }}>
@@ -265,6 +377,7 @@ const FastMarkdownChunk = memo(function FastMarkdownChunk({ content }) {
       </div>
     );
   }
+
   return (
     <div 
       ref={containerRef}
@@ -273,19 +386,23 @@ const FastMarkdownChunk = memo(function FastMarkdownChunk({ content }) {
     />
   );
 });
+
 // ──────────────────────────────────────────────────────────────────────
 // LAZY CHUNK - only renders when in viewport
 // ──────────────────────────────────────────────────────────────────────
 const LazyChunk = memo(function LazyChunk({ children, estimatedHeight = 300 }) {
   const [shouldRender, setShouldRender] = useState(false);
   const ref = useRef(null);
+
   useEffect(() => {
     const handler = () => setShouldRender(true);
     window.addEventListener('force-load-all-chunks', handler);
     return () => window.removeEventListener('force-load-all-chunks', handler);
   }, []);
+
   useEffect(() => {
     if (!ref.current || shouldRender) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -295,9 +412,11 @@ const LazyChunk = memo(function LazyChunk({ children, estimatedHeight = 300 }) {
       },
       { rootMargin: '500px', threshold: 0 }
     );
+
     observer.observe(ref.current);
     return () => observer.disconnect();
   }, [shouldRender]);
+
   if (!shouldRender) {
     return (
       <div 
@@ -312,8 +431,10 @@ const LazyChunk = memo(function LazyChunk({ children, estimatedHeight = 300 }) {
       />
     );
   }
+
   return <div ref={ref}>{children}</div>;
 });
+
 // ──────────────────────────────────────────────────────────────────────
 // MAIN COMPONENT
 // ──────────────────────────────────────────────────────────────────────
@@ -324,22 +445,27 @@ function VirtualizedMarkdown({ content, currentFolder = '' }) {
     // Preload marked
     loadMarked();
   }, []);
+
   // Instant synchronous split
   const parts = useMemo(
     () => splitContent(content, currentFolder), 
     [content, currentFolder]
   );
+
   if (parts.length === 0) return null;
+
   return (
     <>
       {parts.map((part, index) => {
         const partContent = part.type === 'import' 
           ? <LazyImport path={part.path} />
           : <FastMarkdownChunk content={part.content} />;
+
         // First chunk renders immediately
         if (index === 0) {
           return <div key={part.key}>{partContent}</div>;
         }
+
         // Other chunks lazy load
         return (
           <LazyChunk 
@@ -353,4 +479,5 @@ function VirtualizedMarkdown({ content, currentFolder = '' }) {
     </>
   );
 }
+
 export default memo(VirtualizedMarkdown);
