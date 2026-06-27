@@ -227,7 +227,12 @@ console.log(`📦 Serving static files from: ${distPath}`);
 app.use(express.static(distPath));
 
 // Catch-all route - serve React's index.html for any unmatched route
-app.get('*', (req, res) => {
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(distPath, 'index.html'));
+// });
+
+app.use((req, res, next) => {  // ✅ Use middleware instead
+  if (req.path.startsWith('/api/')) return next();
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
