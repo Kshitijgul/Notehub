@@ -4,6 +4,11 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Octokit } from '@octokit/rest';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -84,83 +89,52 @@ async function buildGithubTree(relativePath = '') {
 }
 
 /** Read markdown content from GitHub - uses raw.githubusercontent.com for reliability */
-// async function readMarkdownFile(relativePath) {
-//   const safePath = String(relativePath || '').replace(/\\/g, '/').replace(/^\/+/, '');
-//   if (!safePath || safePath.includes('..') || !safePath.endsWith('.md')) return null;
-
-//   const githubPath = GITHUB_CONTENT_PATH ? `${GITHUB_CONTENT_PATH}/${safePath}` : safePath;
-  
-//   // Try raw URL first (handles special characters like & better, no API rate limit)
-//   try {
-//     const encodedPath = githubPath.split('/').map(p => encodeURIComponent(p)).join('/');
-//     const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${encodedPath}`;
-    
-//     const headers = {};
-//     if (GITHUB_TOKEN) {
-//       headers['Authorization'] = `token ${GITHUB_TOKEN}`;
-//     }
-    
-//     const response = await fetch(rawUrl, { headers });
-//     if (response.ok) {
-//       return await response.text();
-//     }
-//     console.warn(`[Fetch] ❌ ${response.status}: ${safePath}`);
-//   } catch (err) {
-//     console.warn(`[Fetch] Raw URL failed for ${safePath}:`, err.message);
-//   }
-  
-//   // Fallback to GitHub API
-//   try {
-//     const data = await getGithubContent(githubPath);
-//     if (Array.isArray(data) || data.type !== 'file') return null;
-
-//     if (data.content && data.encoding === 'base64') {
-//       return Buffer.from(data.content, 'base64').toString('utf-8');
-//     }
-
-//     if (data.download_url) {
-//       const response = await fetch(data.download_url);
-//       if (!response.ok) return null;
-//       return await response.text();
-//     }
-//   } catch (err) {
-//     console.error(`[API] Failed to fetch ${safePath}:`, err.message);
-//   }
-
-//   return null;
-// }
 async function readMarkdownFile(relativePath) {
   const safePath = String(relativePath || '').replace(/\\/g, '/').replace(/^\/+/, '');
   if (!safePath || safePath.includes('..') || !safePath.endsWith('.md')) return null;
 
   const githubPath = GITHUB_CONTENT_PATH ? `${GITHUB_CONTENT_PATH}/${safePath}` : safePath;
+  
+  // Try raw URL first (handles special characters like & better, no API rate limit)
+  try {
+    const encodedPath = githubPath.split('/').map(p => encodeURIComponent(p)).join('/');
+    const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${encodedPath}`;
+    
+    const headers = {};
+    if (GITHUB_TOKEN) {
+      headers['Authorization'] = `token ${GITHUB_TOKEN}`;
+    }
+    
+    const response = await fetch(rawUrl, { headers });
+    if (response.ok) {
+      return await response.text();
+    }
+    console.warn(`[Fetch] ❌ ${response.status}: ${safePath}`);
+  } catch (err) {
+    console.warn(`[Fetch] Raw URL failed for ${safePath}:`, err.message);
+  }
+  
+  // Fallback to GitHub API
   try {
     const data = await getGithubContent(githubPath);
     if (Array.isArray(data) || data.type !== 'file') return null;
 
-    let text = '';
     if (data.content && data.encoding === 'base64') {
-      text = Buffer.from(data.content, 'base64').toString('utf-8');
-    } else if (data.download_url) {
-      const response = await fetch(data.download_url);
-      if (response.ok) text = await response.text();
+      return Buffer.from(data.content, 'base64').toString('utf-8');
     }
 
-    const baseDir = path.posix.dirname(safePath);
-    
-    // FIX: Base64 encode the path to prevent '&' and other characters from breaking HTML
-    text = text.replace(/@import\s+["'](.+?)["']/g, (match, importPath) => {
-      const resolved = path.posix.normalize(path.posix.join(baseDir, importPath));
-      const encodedPath = Buffer.from(resolved).toString('base64');
-      return `<div data-import="${encodedPath}"></div>`;
-    });
-
-    return text;
+    if (data.download_url) {
+      const response = await fetch(data.download_url);
+      if (!response.ok) return null;
+      return await response.text();
+    }
   } catch (err) {
-    console.error(`[API] Error reading ${safePath}:`, err.message);
-    return null;
+    console.error(`[API] Failed to fetch ${safePath}:`, err.message);
   }
+
+  return null;
 }
+
 // ── REST API ──────────────────────────────────────────────────────────────────
 
 /** GET /api/tree → full file tree */
@@ -246,9 +220,20 @@ async function pollGithubTree() {
 setInterval(pollGithubTree, 30000);
 pollGithubTree();
 
+// ── Serve React Frontend (Production) ─────────────────────────────────────────
+const distPath = path.resolve(__dirname, '../dist');
+console.log(`📦 Serving static files from: ${distPath}`);
+
+app.use(express.static(distPath));
+
+// Catch-all route - serve React's index.html for any unmatched route
+app.get('*', (req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
+});
+
 // ── Start ─────────────────────────────────────────────────────────────────────
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀  Notes server      →  http://localhost:${PORT}`);
   console.log(`🔌  WebSocket         →  ws://localhost:${PORT}`);
   console.log(`🐙  GitHub repository →  ${GITHUB_OWNER}/${GITHUB_REPO}`);
