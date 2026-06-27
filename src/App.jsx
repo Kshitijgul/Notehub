@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useContentWatcher } from './hooks/useContentWatcher';
-import MarkdownRenderer from '../src/components/MarkdownRenderer';
+import VirtualizedMarkdown from './components/VirtualizedMarkdown';
 import './markdown.css';
+import './markdown-mermaid.css';
 
 // ── tiny cn helper ─────────────────────────────────────────────────────────
 function cn(...classes) {
@@ -226,6 +227,7 @@ export default function App() {
   const [loadingFile, setLoadingFile]     = useState(false);
   const [toast, setToast]                 = useState(null);
   const prevLastEvent                     = useRef(null);
+  const scrollContainerRef                = useRef(null); // For VirtualizedMarkdown
 
   // Auto-expand first folder when tree loads
   useEffect(() => {
@@ -547,7 +549,11 @@ export default function App() {
         )}
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto" style={{ background: '#1e1e1e', scrollbarWidth: 'thin', scrollbarColor: '#424242 transparent' }}>
+        <div 
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto" 
+          style={{ background: '#1e1e1e', scrollbarWidth: 'thin', scrollbarColor: '#424242 transparent' }}
+        >
           {loadingFile ? (
             <div className="flex items-center justify-center h-full gap-3" style={{ color: '#888' }}>
               <RefreshIcon className="w-5 h-5 animate-spin" />
@@ -556,7 +562,10 @@ export default function App() {
           ) : activeNode ? (
             <div className="max-w-4xl mx-auto px-8 py-10 pb-24">
               <article className="markdown-body">
-                <MarkdownRenderer content={activeContent} />
+                <VirtualizedMarkdown 
+                  content={activeContent}
+                  currentFolder={activeNode?.path ? activeNode.path.split('/').slice(0, -1).join('/') : ''}
+                />
               </article>
             </div>
           ) : (

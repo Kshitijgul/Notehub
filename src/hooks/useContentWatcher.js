@@ -1,13 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-// const API = 'http://localhost:3001';
-// const WS  = 'ws://localhost:3001';
-
+// ── Auto-detect environment ────────────────────────────────────────────────
 const isProduction = window.location.protocol === 'https:';
 const API = isProduction ? window.location.origin : 'http://localhost:3001';
-const WS = isProduction 
-  ? `wss://${window.location.host}` 
-  : 'ws://localhost:3001';
+const WS = isProduction ? `wss://${window.location.host}` : 'ws://localhost:3001';
 
 export function useContentWatcher() {
   const [state, setState] = useState({
@@ -15,6 +11,7 @@ export function useContentWatcher() {
     fileCache: {},
     status: 'connecting',
     lastEvent: null,
+    loadingProgress: null, // { loaded, total }
   });
 
   const wsRef = useRef(null);
@@ -34,25 +31,107 @@ export function useContentWatcher() {
     }
   }, []);
 
-  // ── Fetch file content ─────────────────────────────────────────────────────
+  // ── Fetch file content (with streaming for imports) ────────────────────────
   const fetchFile = useCallback(async (filePath) => {
     // Return from cache if already loaded
     const cached = state.fileCache[filePath];
     if (cached !== undefined) return cached;
 
+    // Try streaming endpoint first
+    return new Promise((resolve) => {
+      try {
+        const eventSource = new EventSource(
+          `${API}/api/file/stream?path=${encodeURIComponent(filePath)}`
+        );
+
+        let timeout = setTimeout(() => {
+          // Fallback to regular endpoint if streaming fails
+          eventSource.close();
+          fetchFileRegular(filePath).then(resolve);
+        }, 5000);
+
+        eventSource.onmessage = (event) => {
+          clearTimeout(timeout);
+          try {
+            const data = JSON.parse(event.data);
+            
+            switch (data.type) {
+              case 'progress':
+                if (mountedRef.current) {
+                  setState(prev => ({
+                    ...prev,
+                    loadingProgress: { loaded: data.loaded, total: data.total },
+                    lastEvent: `📥 Loading ${data.loaded}/${data.total} imports...`,
+                  }));
+                }
+                break;
+
+              case 'complete':
+                eventSource.close();
+                if (mountedRef.current) {
+                  setState(prev => ({
+                    ...prev,
+                    fileCache: { ...prev.fileCache, [filePath]: data.content },
+                    loadingProgress: null,
+                    lastEvent: `✅ Loaded successfully`,
+                  }));
+                }
+                resolve(data.content);
+                break;
+
+              case 'error':
+                eventSource.close();
+                if (mountedRef.current) {
+                  setState(prev => ({
+                    ...prev,
+                    loadingProgress: null,
+                  }));
+                }
+                resolve('# Error loading file\n\n' + (data.message || ''));
+                break;
+
+              case 'status':
+                if (mountedRef.current) {
+                  setState(prev => ({ ...prev, lastEvent: data.message }));
+                }
+                break;
+            }
+          } catch (err) {
+            console.error('[Stream] Parse error:', err);
+          }
+        };
+
+        eventSource.onerror = () => {
+          clearTimeout(timeout);
+          eventSource.close();
+          // Fallback to regular endpoint
+          fetchFileRegular(filePath).then(resolve);
+        };
+      } catch (err) {
+        // Fallback to regular endpoint
+        fetchFileRegular(filePath).then(resolve);
+      }
+    });
+  }, [state.fileCache]);
+
+  // ── Fallback: Regular file fetch ──────────────────────────────────────────
+  const fetchFileRegular = async (filePath) => {
     try {
       const res = await fetch(`${API}/api/file?path=${encodeURIComponent(filePath)}`);
       const data = await res.json();
       const content = data.content ?? '# File not found';
-      setState(prev => ({
-        ...prev,
-        fileCache: { ...prev.fileCache, [filePath]: content },
-      }));
+      
+      if (mountedRef.current) {
+        setState(prev => ({
+          ...prev,
+          fileCache: { ...prev.fileCache, [filePath]: content },
+        }));
+      }
       return content;
     } catch {
       return '# Error loading file';
     }
-  }, [state.fileCache]);
+  };
 
   // ── WebSocket connect ──────────────────────────────────────────────────────
   const connect = useCallback(() => {
@@ -65,7 +144,11 @@ export function useContentWatcher() {
       ws.onopen = () => {
         if (!mountedRef.current) return;
         console.log('[WS] Connected');
-        setState(prev => ({ ...prev, status: 'connected', lastEvent: 'Connected to server' }));
+        setState(prev => ({ 
+          ...prev, 
+          status: 'connected', 
+          lastEvent: 'Connected to server' 
+        }));
         fetchTree();
       };
 
@@ -80,13 +163,12 @@ export function useContentWatcher() {
             switch (msg.type) {
               case 'FILE_ADDED':
               case 'FILE_CHANGED':
-                // Update cache with new content
                 if (msg.content !== undefined) {
                   newCache[msg.path] = msg.content;
                 }
                 return {
                   ...prev,
-                  tree: msg.tree,
+                  tree: msg.tree || prev.tree,
                   fileCache: newCache,
                   lastEvent: `${msg.type === 'FILE_ADDED' ? '✨ New' : '✏️ Updated'}: ${msg.path.split('/').pop()}`,
                 };
@@ -95,7 +177,7 @@ export function useContentWatcher() {
                 delete newCache[msg.path];
                 return {
                   ...prev,
-                  tree: msg.tree,
+                  tree: msg.tree || prev.tree,
                   fileCache: newCache,
                   lastEvent: `🗑️ Deleted: ${msg.path.split('/').pop()}`,
                 };
@@ -103,15 +185,24 @@ export function useContentWatcher() {
               case 'DIR_ADDED':
                 return {
                   ...prev,
-                  tree: msg.tree,
+                  tree: msg.tree || prev.tree,
                   lastEvent: `📁 New folder: ${msg.path.split('/').pop()}`,
                 };
 
               case 'DIR_DELETED':
                 return {
                   ...prev,
-                  tree: msg.tree,
+                  tree: msg.tree || prev.tree,
                   lastEvent: `🗑️ Folder removed: ${msg.path.split('/').pop()}`,
+                };
+
+              case 'TREE_UPDATED':
+                // GitHub changes detected - clear cache to force reload
+                return {
+                  ...prev,
+                  tree: msg.tree || prev.tree,
+                  fileCache: {}, // Clear cache so files reload with fresh content
+                  lastEvent: `🔄 Content updated from GitHub`,
                 };
 
               default:
@@ -126,8 +217,11 @@ export function useContentWatcher() {
       ws.onclose = () => {
         if (!mountedRef.current) return;
         console.log('[WS] Disconnected, retrying in 3s...');
-        setState(prev => ({ ...prev, status: 'disconnected', lastEvent: 'Reconnecting...' }));
-        // Auto-reconnect
+        setState(prev => ({ 
+          ...prev, 
+          status: 'disconnected', 
+          lastEvent: 'Reconnecting...' 
+        }));
         reconnectTimer.current = setTimeout(connect, 3000);
       };
 
@@ -158,6 +252,7 @@ export function useContentWatcher() {
     fileCache: state.fileCache,
     status: state.status,
     lastEvent: state.lastEvent,
+    loadingProgress: state.loadingProgress,
     fetchFile,
   };
 }

@@ -4,26 +4,21 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Octokit } from '@octokit/rest';
 import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 dotenv.config();
-
-const app = express();
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 const GITHUB_OWNER = process.env.GITHUB_OWNER || '';
 const GITHUB_REPO = process.env.GITHUB_REPO || '';
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
-const GITHUB_CONTENT_PATH = (process.env.GITHUB_CONTENT_PATH || '').trim();
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
+const GITHUB_CONTENT_PATH = process.env.GITHUB_CONTENT_PATH || '';
+const PORT = Number(process.env.PORT || 3001);
 
 const octokit = new Octokit({
   auth: GITHUB_TOKEN || undefined,
 });
 
+const app = express();
 app.use(cors());
 app.use(express.json());
 
@@ -55,9 +50,9 @@ async function getGithubContent(targetPath) {
 
 /** Recursively build a file tree from GitHub Content folder */
 async function buildGithubTree(relativePath = '') {
-  const absolutePath = GITHUB_CONTENT_PATH
-    ? (relativePath ? `${GITHUB_CONTENT_PATH}/${relativePath}` : GITHUB_CONTENT_PATH)
-    : relativePath;
+  const absolutePath = relativePath
+    ? (GITHUB_CONTENT_PATH ? `${GITHUB_CONTENT_PATH}/${relativePath}` : relativePath)
+    : GITHUB_CONTENT_PATH;
 
   const data = await getGithubContent(absolutePath);
   if (!Array.isArray(data)) return [];
@@ -88,28 +83,84 @@ async function buildGithubTree(relativePath = '') {
   return sortTree(nodes);
 }
 
-/** Read markdown content from GitHub */
+/** Read markdown content from GitHub - uses raw.githubusercontent.com for reliability */
+// async function readMarkdownFile(relativePath) {
+//   const safePath = String(relativePath || '').replace(/\\/g, '/').replace(/^\/+/, '');
+//   if (!safePath || safePath.includes('..') || !safePath.endsWith('.md')) return null;
+
+//   const githubPath = GITHUB_CONTENT_PATH ? `${GITHUB_CONTENT_PATH}/${safePath}` : safePath;
+  
+//   // Try raw URL first (handles special characters like & better, no API rate limit)
+//   try {
+//     const encodedPath = githubPath.split('/').map(p => encodeURIComponent(p)).join('/');
+//     const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${encodedPath}`;
+    
+//     const headers = {};
+//     if (GITHUB_TOKEN) {
+//       headers['Authorization'] = `token ${GITHUB_TOKEN}`;
+//     }
+    
+//     const response = await fetch(rawUrl, { headers });
+//     if (response.ok) {
+//       return await response.text();
+//     }
+//     console.warn(`[Fetch] ❌ ${response.status}: ${safePath}`);
+//   } catch (err) {
+//     console.warn(`[Fetch] Raw URL failed for ${safePath}:`, err.message);
+//   }
+  
+//   // Fallback to GitHub API
+//   try {
+//     const data = await getGithubContent(githubPath);
+//     if (Array.isArray(data) || data.type !== 'file') return null;
+
+//     if (data.content && data.encoding === 'base64') {
+//       return Buffer.from(data.content, 'base64').toString('utf-8');
+//     }
+
+//     if (data.download_url) {
+//       const response = await fetch(data.download_url);
+//       if (!response.ok) return null;
+//       return await response.text();
+//     }
+//   } catch (err) {
+//     console.error(`[API] Failed to fetch ${safePath}:`, err.message);
+//   }
+
+//   return null;
+// }
 async function readMarkdownFile(relativePath) {
   const safePath = String(relativePath || '').replace(/\\/g, '/').replace(/^\/+/, '');
   if (!safePath || safePath.includes('..') || !safePath.endsWith('.md')) return null;
 
   const githubPath = GITHUB_CONTENT_PATH ? `${GITHUB_CONTENT_PATH}/${safePath}` : safePath;
-  const data = await getGithubContent(githubPath);
-  if (Array.isArray(data) || data.type !== 'file') return null;
+  try {
+    const data = await getGithubContent(githubPath);
+    if (Array.isArray(data) || data.type !== 'file') return null;
 
-  if (data.content && data.encoding === 'base64') {
-    return Buffer.from(data.content, 'base64').toString('utf-8');
+    let text = '';
+    if (data.content && data.encoding === 'base64') {
+      text = Buffer.from(data.content, 'base64').toString('utf-8');
+    } else if (data.download_url) {
+      const response = await fetch(data.download_url);
+      if (response.ok) text = await response.text();
+    }
+
+    const baseDir = path.posix.dirname(safePath);
+    
+    // FIX: Base64 encode the path to prevent '&' and other characters from breaking HTML
+    text = text.replace(/@import\s+["'](.+?)["']/g, (match, importPath) => {
+      const resolved = path.posix.normalize(path.posix.join(baseDir, importPath));
+      const encodedPath = Buffer.from(resolved).toString('base64');
+      return `<div data-import="${encodedPath}"></div>`;
+    });
+
+    return text;
+  } catch (err) {
+    console.error(`[API] Error reading ${safePath}:`, err.message);
+    return null;
   }
-
-  if (data.download_url) {
-    const response = await fetch(data.download_url);
-    if (!response.ok) return null;
-    return await response.text();
-  }
-
-  return null;
 }
-
 // ── REST API ──────────────────────────────────────────────────────────────────
 
 /** GET /api/tree → full file tree */
@@ -195,20 +246,12 @@ async function pollGithubTree() {
 setInterval(pollGithubTree, 30000);
 pollGithubTree();
 
-
-// Production static serving
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../dist')));
-  
-  app.use((req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
-  });
-}
-
 // ── Start ─────────────────────────────────────────────────────────────────────
-console.log("ENV PORT:", process.env.PORT);
-console.log("FINAL PORT:", PORT);
 
 server.listen(PORT, () => {
-  console.log(`\n🚀 Notes server running on port ${PORT}`);
+  console.log(`\n🚀  Notes server      →  http://localhost:${PORT}`);
+  console.log(`🔌  WebSocket         →  ws://localhost:${PORT}`);
+  console.log(`🐙  GitHub repository →  ${GITHUB_OWNER}/${GITHUB_REPO}`);
+  console.log(`🌿  Branch            →  ${GITHUB_BRANCH}`);
+  console.log(`📁  Content path      →  ${GITHUB_CONTENT_PATH}\n`);
 });

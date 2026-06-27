@@ -1,206 +1,346 @@
-import { useEffect, useRef, useState } from 'react';
+import { useMemo, useState, useEffect, useRef, memo } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
-import { visit } from 'unist-util-visit';
+import LazyImport from './LazyImport';
+import LazyCodeBlock from './LazyCodeBlock';
+import MermaidDiagram from './MermaidDiagram';
 
-// Load Mermaid from CDN (avoids bundling 3MB library)
-const loadMermaid = () => {
-  return new Promise((resolve, reject) => {
-    if (window.mermaid) {
-      resolve(window.mermaid);
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
-    script.onload = () => {
-      window.mermaid.initialize({
-        startOnLoad: false,
-        theme: 'dark',
-        darkMode: true,
-        themeVariables: {
-          primaryColor: '#1f5f9e',
-          primaryTextColor: '#fff',
-          primaryBorderColor: '#01579b',
-          lineColor: '#66b3ff',
-          secondaryColor: '#1e3a5f',
-          tertiaryColor: '#2d5a87'
-        }
-      });
-      resolve(window.mermaid);
-    };
-    script.onerror = reject;
-    document.head.appendChild(script);
-  });
-};
+// ──────────────────────────────────────────────────────────────────────
+// SMART ANCHOR LINK HANDLER
+// Waits for lazy content to load, then scrolls
+// ──────────────────────────────────────────────────────────────────────
+async function scrollToAnchor(targetId, maxAttempts = 30) {
+  // Try immediate find first
+  let element = document.getElementById(targetId);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return true;
+  }
 
-// Mermaid Diagram Component
-const MermaidDiagram = ({ chart }) => {
-  const [svg, setSvg] = useState('');
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    
-    const render = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const mermaid = await loadMermaid();
-        if (cancelled) return;
-        
-        const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
-        const { svg } = await mermaid.render(id, chart);
-        if (!cancelled) {
-          setSvg(svg);
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error('Mermaid render error:', err);
-        if (!cancelled) {
-          setError(err.message || 'Failed to render diagram');
-          setLoading(false);
-        }
-      }
-    };
-    
-    render();
-    return () => { cancelled = true; };
-  }, [chart]);
-
-  if (loading) return <div className="mermaid-loading">Loading diagram...</div>;
-  if (error) return (
-    <div className="mermaid-error">
-      <strong>Diagram Error:</strong> {error}
-      <pre style={{ marginTop: '10px', fontSize: '12px', opacity: 0.8 }}>{chart.substring(0, 200)}...</pre>
-    </div>
-  );
+  // Element not found - force-load all hidden chunks
+  window.dispatchEvent(new CustomEvent('force-load-all-chunks'));
   
-  return <div className="mermaid-diagram" dangerouslySetInnerHTML={{ __html: svg }} />;
-};
+  // Wait for content to render, then check again
+  for (let i = 0; i < maxAttempts; i++) {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    element = document.getElementById(targetId);
+    
+    if (element) {
+      // Wait a tiny bit more for layout to settle
+      await new Promise(resolve => setTimeout(resolve, 100));
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return true;
+    }
+  }
+  
+  // Last resort: try matching by heading text
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  for (const h of headings) {
+    const slug = h.textContent.toLowerCase().trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-');
+    if (slug === targetId || slug.includes(targetId)) {
+      h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return true;
+    }
+  }
+  
+  console.warn(`Anchor not found: #${targetId}`);
+  return false;
+}
 
-// Plugin to detect mermaid code blocks
-const remarkMermaid = () => {
-  return (tree) => {
-    visit(tree, 'code', (node) => {
-      const value = node.value || '';
-      const trimmed = value.trim();
-      
-      // Check if it's mermaid
-      const isMermaid = node.lang === 'mermaid' || 
-          trimmed.startsWith('flowchart') ||
-          trimmed.startsWith('graph ') ||
-          trimmed.startsWith('sequenceDiagram') ||
-          trimmed.startsWith('classDiagram') ||
-          trimmed.startsWith('stateDiagram') ||
-          trimmed.startsWith('erDiagram') ||
-          trimmed.startsWith('gantt') ||
-          trimmed.startsWith('pie') ||
-          trimmed.startsWith('gitGraph') ||
-          trimmed.startsWith('mindmap') ||
-          // Match %%{init:...}%% followed by diagram type
-          /^%%\{[\s\S]*?%%\s*(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram|gantt|pie|gitGraph|mindmap)/.test(trimmed);
-      
-      if (isMermaid) {
-        node.data = { hProperties: { className: ['mermaid'] } };
-        node.lang = 'mermaid'; // Force language to mermaid
-      }
-    });
-  };
-};
-
-// Handle internal links (smooth scroll)
-const handleLinkClick = (e) => {
+const handleLinkClick = async (e) => {
   const href = e.currentTarget.getAttribute('href');
   if (href && href.startsWith('#')) {
     e.preventDefault();
-    const targetId = href.slice(1);
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      // Try finding by heading text
-      const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-      for (const h of headings) {
-        if (h.textContent.toLowerCase().includes(targetId.toLowerCase().replace(/-/g, ' '))) {
-          h.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          break;
-        }
-      }
-    }
+    const targetId = decodeURIComponent(href.slice(1));
+    await scrollToAnchor(targetId);
   }
 };
 
-const MarkdownRenderer = ({ content }) => {
+// ──────────────────────────────────────────────────────────────────────
+// Markdown component overrides
+// ──────────────────────────────────────────────────────────────────────
+const markdownComponents = {
+  code({ node, inline, className, children, ...props }) {
+    const match = /language-(\w+)/.exec(className || '');
+    const language = match ? match[1] : '';
+    const code = String(children).replace(/\n$/, '');
+    const trimmed = code.trim();
+
+    // Detect mermaid
+    const isMermaid = language === 'mermaid' || 
+        trimmed.startsWith('flowchart') ||
+        trimmed.startsWith('graph ') ||
+        trimmed.startsWith('sequenceDiagram') ||
+        trimmed.startsWith('classDiagram') ||
+        /^%%\{[\s\S]*?%%\s*(flowchart|graph|sequenceDiagram|classDiagram)/.test(trimmed);
+    
+    if (isMermaid) {
+      return <MermaidDiagram chart={code} />;
+    }
+
+    if (!inline && language) {
+      return <LazyCodeBlock code={code} language={language} />;
+    }
+
+    return (
+      <code 
+        style={{
+          background: '#2d2d2d',
+          color: '#e06c75',
+          padding: '2px 6px',
+          borderRadius: '4px',
+          fontSize: '0.9em',
+          fontFamily: 'Cascadia Code, Consolas, monospace',
+        }}
+        {...props}
+      >
+        {children}
+      </code>
+    );
+  },
+
+  a({ node, children, href, ...props }) {
+    return (
+      <a 
+        href={href} 
+        onClick={handleLinkClick}
+        target={href?.startsWith('http') ? '_blank' : undefined}
+        rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+        {...props}
+      >
+        {children}
+      </a>
+    );
+  },
+
+  img({ node, ...props }) {
+    return (
+      <img 
+        loading="lazy"
+        style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px', margin: '12px 0' }}
+        {...props}
+      />
+    );
+  },
+
+  table({ node, children, ...props }) {
+    return (
+      <div style={{ overflowX: 'auto', margin: '16px 0' }}>
+        <table {...props}>{children}</table>
+      </div>
+    );
+  },
+};
+
+// ──────────────────────────────────────────────────────────────────────
+// Resolve relative @import paths
+// ──────────────────────────────────────────────────────────────────────
+function resolveImportPath(importPath, currentFolder) {
+  let resolved;
+  const clean = importPath.trim();
+  
+  if (clean.startsWith('./')) {
+    resolved = currentFolder ? `${currentFolder}/${clean.slice(2)}` : clean.slice(2);
+  } else if (clean.startsWith('/')) {
+    resolved = clean.slice(1);
+  } else if (clean.startsWith('../')) {
+    const parts = currentFolder.split('/');
+    let p = clean;
+    while (p.startsWith('../')) {
+      parts.pop();
+      p = p.slice(3);
+    }
+    resolved = parts.length > 0 ? `${parts.join('/')}/${p}` : p;
+  } else {
+    resolved = currentFolder ? `${currentFolder}/${clean}` : clean;
+  }
+  
+  return resolved.replace(/\/+/g, '/');
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// AGGRESSIVE SPLITTING
+// ──────────────────────────────────────────────────────────────────────
+function splitContent(content, currentFolder) {
+  if (!content) return [];
+  
+  const parts = [];
+  const importRegex = /^@import\s+["'](.+?)["']\s*;?\s*$/gm;
+  
+  let lastIndex = 0;
+  let match;
+  const sections = [];
+  
+  while ((match = importRegex.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      const chunk = content.slice(lastIndex, match.index).trim();
+      if (chunk) sections.push({ type: 'markdown', content: chunk });
+    }
+    sections.push({ 
+      type: 'import', 
+      path: resolveImportPath(match[1], currentFolder) 
+    });
+    lastIndex = match.index + match[0].length;
+  }
+  
+  if (lastIndex < content.length) {
+    const chunk = content.slice(lastIndex).trim();
+    if (chunk) sections.push({ type: 'markdown', content: chunk });
+  }
+  
+  if (sections.length === 0) {
+    sections.push({ type: 'markdown', content });
+  }
+  
+  const MAX_CHUNK_SIZE = 1500;
+  let chunkIndex = 0;
+  
+  for (const section of sections) {
+    if (section.type === 'import') {
+      parts.push({ ...section, key: `import-${chunkIndex++}` });
+      continue;
+    }
+    
+    if (section.content.length <= MAX_CHUNK_SIZE) {
+      parts.push({ 
+        type: 'markdown', 
+        content: section.content, 
+        key: `md-${chunkIndex++}` 
+      });
+      continue;
+    }
+    
+    const subParts = section.content.split(/(?=^#{1,3}\s+|^---\s*$)/m).filter(s => s.trim());
+    
+    let currentGroup = '';
+    for (const sub of subParts) {
+      if (currentGroup.length + sub.length > MAX_CHUNK_SIZE && currentGroup.length > 0) {
+        parts.push({ 
+          type: 'markdown', 
+          content: currentGroup.trim(), 
+          key: `md-${chunkIndex++}` 
+        });
+        currentGroup = sub;
+      } else {
+        currentGroup += (currentGroup ? '\n\n' : '') + sub;
+      }
+    }
+    
+    if (currentGroup.trim()) {
+      parts.push({ 
+        type: 'markdown', 
+        content: currentGroup.trim(), 
+        key: `md-${chunkIndex++}` 
+      });
+    }
+  }
+  
+  return parts;
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// VIRTUAL CHUNK - Listens for force-load event for anchor navigation
+// ──────────────────────────────────────────────────────────────────────
+const VirtualChunk = memo(function VirtualChunk({ children, estimatedHeight = 200 }) {
+  const [shouldRender, setShouldRender] = useState(false);
+  const ref = useRef(null);
+
+  // Listen for force-load event (when user clicks anchor link)
+  useEffect(() => {
+    const handleForceLoad = () => setShouldRender(true);
+    window.addEventListener('force-load-all-chunks', handleForceLoad);
+    return () => window.removeEventListener('force-load-all-chunks', handleForceLoad);
+  }, []);
+
+  // Intersection observer for scroll-based loading
+  useEffect(() => {
+    if (!ref.current || shouldRender) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldRender(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '600px', threshold: 0 }
+    );
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [shouldRender]);
+
+  if (!shouldRender) {
+    return (
+      <div 
+        ref={ref} 
+        style={{ 
+          minHeight: estimatedHeight, 
+          background: '#1a1a1a',
+          border: '1px dashed #2a2a2a',
+          borderRadius: '4px',
+          margin: '4px 0',
+        }}
+      />
+    );
+  }
+
+  return <div ref={ref}>{children}</div>;
+});
+
+// ──────────────────────────────────────────────────────────────────────
+// Memoized markdown chunk
+// ──────────────────────────────────────────────────────────────────────
+const MarkdownChunk = memo(function MarkdownChunk({ content }) {
   return (
     <ReactMarkdown
-      remarkPlugins={[remarkGfm, remarkMermaid]}
-      rehypePlugins={[rehypeRaw, rehypeSlug]}
-      components={{
-        code({ node, inline, className, children, ...props }) {
-          const match = /language-(\w+)/.exec(className || '');
-          const language = match ? match[1] : '';
-          const code = String(children).replace(/\n$/, '');
-
-          // Render Mermaid diagrams - improved detection
-          const trimmedCode = code.trim();
-          const isMermaid = language === 'mermaid' || 
-              trimmedCode.startsWith('flowchart') ||
-              trimmedCode.startsWith('graph ') ||
-              trimmedCode.startsWith('sequenceDiagram') ||
-              trimmedCode.startsWith('classDiagram') ||
-              trimmedCode.startsWith('stateDiagram') ||
-              trimmedCode.startsWith('erDiagram') ||
-              trimmedCode.startsWith('gantt') ||
-              trimmedCode.startsWith('pie') ||
-              trimmedCode.startsWith('gitGraph') ||
-              trimmedCode.startsWith('mindmap') ||
-              // Match %%{init:...}%% followed by diagram type
-              /^%%\{[\s\S]*?%%\s*(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram|gantt|pie|gitGraph|mindmap)/.test(trimmedCode);
-          
-          if (isMermaid) {
-            return <MermaidDiagram chart={code} />;
-          }
-
-          if (!inline && language) {
-            return (
-              <SyntaxHighlighter
-                style={vscDarkPlus}
-                language={language}
-                PreTag="div"
-                {...props}
-              >
-                {code}
-              </SyntaxHighlighter>
-            );
-          }
-
-          return (
-            <code className={className} {...props}>
-              {children}
-            </code>
-          );
-        },
-        a({ node, children, href, ...props }) {
-          return (
-            <a 
-              href={href} 
-              onClick={handleLinkClick}
-              {...props}
-            >
-              {children}
-            </a>
-          );
-        }
-      }}
+      remarkPlugins={[remarkGfm]}
+      rehypePlugins={[rehypeSlug]}
+      components={markdownComponents}
     >
       {content}
     </ReactMarkdown>
   );
+});
+
+// ──────────────────────────────────────────────────────────────────────
+// MAIN COMPONENT
+// ──────────────────────────────────────────────────────────────────────
+const MarkdownRenderer = ({ content, currentFolder = '' }) => {
+  const parts = useMemo(
+    () => splitContent(content, currentFolder), 
+    [content, currentFolder]
+  );
+
+  const IMMEDIATE_RENDER_COUNT = 1;
+
+  return (
+    <>
+      {parts.map((part, index) => {
+        const isImmediate = index < IMMEDIATE_RENDER_COUNT;
+        
+        const partContent = part.type === 'import' 
+          ? <LazyImport path={part.path} />
+          : <MarkdownChunk content={part.content} />;
+
+        if (isImmediate) {
+          return <div key={part.key}>{partContent}</div>;
+        }
+
+        return (
+          <VirtualChunk 
+            key={part.key} 
+            estimatedHeight={part.type === 'import' ? 100 : 150}
+          >
+            {partContent}
+          </VirtualChunk>
+        );
+      })}
+    </>
+  );
 };
 
-export default MarkdownRenderer;
+export default memo(MarkdownRenderer);
