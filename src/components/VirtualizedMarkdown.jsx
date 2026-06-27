@@ -239,30 +239,51 @@ async function renderMermaidInto(element, chart) {
 
 // ──────────────────────────────────────────────────────────────────────
 // Parse markdown with marked
+// Extract ANY code block, then check if it's mermaid (more robust)
 // ──────────────────────────────────────────────────────────────────────
 async function parseMarkdownFast(content) {
   if (!content) return { html: '', mermaidBlocks: [] };
   
   const mermaidBlocks = [];
   
-  // Extract mermaid blocks first
+  // Robust regex: matches any fenced code block with optional language
+  // - Handles \r\n (Windows) and \n (Unix) line endings
+  // - Allows any language identifier
+  // - Allows trailing whitespace after closing ```
+  const codeBlockRegex = /```([a-zA-Z0-9_+-]*)[ \t]*\r?\n([\s\S]*?)\r?\n[ \t]*```/g;
+  
   const processedContent = content.replace(
-    /```(mermaid|flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram|gantt|pie|gitGraph|mindmap)?\n([\s\S]*?)```/g,
+    codeBlockRegex,
     (match, lang, code) => {
-      const trimmed = code.trim();
-      const isMermaid = lang === 'mermaid' || 
-          trimmed.startsWith('flowchart') ||
+      const trimmed = (code || '').trim();
+      const langLower = (lang || '').toLowerCase();
+      
+      // Detect mermaid by language tag OR by content
+      const isMermaid = 
+          langLower === 'mermaid' || 
+          trimmed.startsWith('flowchart ') ||
+          trimmed.startsWith('flowchart\n') ||
           trimmed.startsWith('graph ') ||
+          trimmed.startsWith('graph\n') ||
           trimmed.startsWith('sequenceDiagram') ||
           trimmed.startsWith('classDiagram') ||
-          /^%%\{[\s\S]*?%%\s*(flowchart|graph|sequenceDiagram|classDiagram)/.test(trimmed);
+          trimmed.startsWith('stateDiagram') ||
+          trimmed.startsWith('erDiagram') ||
+          trimmed.startsWith('gantt') ||
+          trimmed.startsWith('pie') ||
+          trimmed.startsWith('gitGraph') ||
+          trimmed.startsWith('mindmap') ||
+          trimmed.startsWith('journey') ||
+          trimmed.startsWith('timeline') ||
+          /^%%\{[\s\S]*?%%\s*\r?\n?\s*(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram)/.test(trimmed);
       
       if (isMermaid) {
         const id = mermaidBlocks.length;
-        mermaidBlocks.push(code.trim());
-        return `<div data-mermaid-id="${id}"></div>`;
+        mermaidBlocks.push(trimmed);
+        // Wrap with newlines so marked treats it as block-level HTML
+        return `\n\n<div data-mermaid-id="${id}" class="mermaid-placeholder"></div>\n\n`;
       }
-      return match;
+      return match; // Keep as-is if not mermaid
     }
   );
   
@@ -359,15 +380,30 @@ const FastMarkdownChunk = memo(function FastMarkdownChunk({ content }) {
   useEffect(() => {
     if (!containerRef.current || mermaidBlocks.length === 0) return;
     
-    const placeholders = containerRef.current.querySelectorAll('[data-mermaid-id]');
-    placeholders.forEach(el => {
-      const id = parseInt(el.getAttribute('data-mermaid-id'), 10);
-      const chart = mermaidBlocks[id];
-      if (chart && !el.hasAttribute('data-mounted')) {
-        el.setAttribute('data-mounted', 'true');
-        renderMermaidInto(el, chart);
-      }
-    });
+    // Small delay to ensure DOM is fully ready
+    const timer = setTimeout(() => {
+      if (!containerRef.current) return;
+      
+      const placeholders = containerRef.current.querySelectorAll('[data-mermaid-id]');
+      console.log(`[Mermaid] Found ${placeholders.length}/${mermaidBlocks.length} placeholders`);
+      
+      placeholders.forEach(el => {
+        const id = parseInt(el.getAttribute('data-mermaid-id'), 10);
+        const chart = mermaidBlocks[id];
+        if (chart && !el.hasAttribute('data-mounted')) {
+          el.setAttribute('data-mounted', 'true');
+          // If wrapped in <p>, unwrap it (marked sometimes wraps inline HTML)
+          if (el.parentElement?.tagName === 'P' && el.parentElement.children.length === 1) {
+            const p = el.parentElement;
+            p.parentElement.insertBefore(el, p);
+            p.remove();
+          }
+          renderMermaidInto(el, chart);
+        }
+      });
+    }, 50);
+    
+    return () => clearTimeout(timer);
   }, [html, mermaidBlocks]);
 
   if (!html) {

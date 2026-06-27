@@ -6,11 +6,33 @@ import { Octokit } from '@octokit/rest';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config();
+// ── Load .env from multiple possible locations ────────────────────────────────
+const envPaths = [
+  path.resolve(process.cwd(), '.env'),      // Current working directory
+  path.resolve(__dirname, '../.env'),       // One level up from server file
+  path.resolve(__dirname, '.env'),          // Same folder as server file
+];
+
+let envLoaded = false;
+for (const envPath of envPaths) {
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+    console.log(`✅ Loaded .env from: ${envPath}`);
+    envLoaded = true;
+    break;
+  }
+}
+
+if (!envLoaded) {
+  console.warn(`⚠️  No .env file found. Tried:`);
+  envPaths.forEach(p => console.warn(`   - ${p}`));
+  console.warn(`   Using environment variables from system instead.\n`);
+}
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 const GITHUB_OWNER = process.env.GITHUB_OWNER || '';
@@ -18,6 +40,15 @@ const GITHUB_REPO = process.env.GITHUB_REPO || '';
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
 const GITHUB_CONTENT_PATH = process.env.GITHUB_CONTENT_PATH || '';
 const PORT = Number(process.env.PORT || 3001);
+
+// Show what was loaded (for debugging)
+console.log(`\n🔧 Configuration:`);
+console.log(`   GITHUB_OWNER:  ${GITHUB_OWNER || '❌ MISSING'}`);
+console.log(`   GITHUB_REPO:   ${GITHUB_REPO || '❌ MISSING'}`);
+console.log(`   GITHUB_TOKEN:  ${GITHUB_TOKEN ? '✅ Set (' + GITHUB_TOKEN.substring(0, 10) + '...)' : '❌ MISSING'}`);
+console.log(`   GITHUB_BRANCH: ${GITHUB_BRANCH}`);
+console.log(`   CONTENT_PATH:  ${GITHUB_CONTENT_PATH || '(root)'}`);
+console.log(`   PORT:          ${PORT}\n`);
 
 const octokit = new Octokit({
   auth: GITHUB_TOKEN || undefined,
@@ -88,14 +119,14 @@ async function buildGithubTree(relativePath = '') {
   return sortTree(nodes);
 }
 
-/** Read markdown content from GitHub - uses raw.githubusercontent.com for reliability */
+/** Read markdown content from GitHub */
 async function readMarkdownFile(relativePath) {
   const safePath = String(relativePath || '').replace(/\\/g, '/').replace(/^\/+/, '');
   if (!safePath || safePath.includes('..') || !safePath.endsWith('.md')) return null;
 
   const githubPath = GITHUB_CONTENT_PATH ? `${GITHUB_CONTENT_PATH}/${safePath}` : safePath;
   
-  // Try raw URL first (handles special characters like & better, no API rate limit)
+  // Try raw URL first (handles special characters like & better)
   try {
     const encodedPath = githubPath.split('/').map(p => encodeURIComponent(p)).join('/');
     const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${encodedPath}`;
@@ -137,19 +168,17 @@ async function readMarkdownFile(relativePath) {
 
 // ── REST API ──────────────────────────────────────────────────────────────────
 
-/** GET /api/tree → full file tree */
 app.get('/api/tree', async (_req, res) => {
   try {
     ensureConfig();
     const tree = await buildGithubTree();
     res.json({ tree });
   } catch (err) {
-    console.error('[API] Error building tree:', err);
-    res.status(500).json({ error: 'Failed to read Content from GitHub' });
+    console.error('[API] Error building tree:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
-/** GET /api/file?path=Folder/file.md → file content */
 app.get('/api/file', async (req, res) => {
   const filePath = req.query.path;
   if (!filePath) return res.status(400).json({ error: 'Missing ?path param' });
@@ -159,7 +188,8 @@ app.get('/api/file', async (req, res) => {
     ensureConfig();
     content = await readMarkdownFile(filePath);
   } catch (err) {
-    console.error('[API] Error reading file:', err);
+    console.error('[API] Error reading file:', err.message);
+    return res.status(500).json({ error: err.message });
   }
 
   if (content === null) return res.status(404).json({ error: 'File not found' });
@@ -184,7 +214,7 @@ wss.on('connection', (ws) => {
 function broadcast(event) {
   const msg = JSON.stringify(event);
   for (const client of clients) {
-    if (client.readyState === 1 /* OPEN */) client.send(msg);
+    if (client.readyState === 1) client.send(msg);
   }
 }
 
@@ -213,7 +243,7 @@ async function pollGithubTree() {
       });
     }
   } catch (err) {
-    console.error('[Watcher] Poll error:', err.message);
+    // Silently fail - don't spam the console
   }
 }
 
@@ -221,20 +251,35 @@ setInterval(pollGithubTree, 30000);
 pollGithubTree();
 
 // ── Serve React Frontend (Production) ─────────────────────────────────────────
-const distPath = path.resolve(__dirname, '../dist');
-console.log(`📦 Serving static files from: ${distPath}`);
 
-app.use(express.static(distPath));
+// Try to find dist folder in multiple locations
+const distPaths = [
+  path.resolve(process.cwd(), 'dist'),
+  path.resolve(__dirname, '../dist'),
+  path.resolve(__dirname, 'dist'),
+];
 
-// Catch-all route - serve React's index.html for any unmatched route
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(distPath, 'index.html'));
-// });
+let distPath = null;
+for (const p of distPaths) {
+  if (fs.existsSync(p)) {
+    distPath = p;
+    break;
+  }
+}
 
-app.use((req, res, next) => {  // ✅ Use middleware instead
-  if (req.path.startsWith('/api/')) return next();
-  res.sendFile(path.join(distPath, 'index.html'));
-});
+if (distPath) {
+  console.log(`📦 Serving static files from: ${distPath}`);
+  app.use(express.static(distPath));
+  
+  // Catch-all middleware (Express 5 compatible) - serve React's index.html
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api/')) return next();
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+} else {
+  console.warn(`⚠️  No 'dist' folder found. Run 'npm run build' first.`);
+  console.warn(`   Tried: ${distPaths.join(', ')}\n`);
+}
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 
@@ -242,6 +287,5 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀  Notes server      →  http://localhost:${PORT}`);
   console.log(`🔌  WebSocket         →  ws://localhost:${PORT}`);
   console.log(`🐙  GitHub repository →  ${GITHUB_OWNER}/${GITHUB_REPO}`);
-  console.log(`🌿  Branch            →  ${GITHUB_BRANCH}`);
-  console.log(`📁  Content path      →  ${GITHUB_CONTENT_PATH}\n`);
+  console.log(`🌿  Branch            →  ${GITHUB_BRANCH}\n`);
 });
