@@ -66,6 +66,80 @@ function generateSlugVariations(text) {
 }
 
 // ──────────────────────────────────────────────────────────────────────
+// Load KaTeX from CDN for math rendering ($x^2$ and $$formula$$)
+// ──────────────────────────────────────────────────────────────────────
+let katexPromise = null;
+function loadKatex() {
+  if (katexPromise) return katexPromise;
+  
+  katexPromise = new Promise((resolve, reject) => {
+    if (window.katex) {
+      resolve(window.katex);
+      return;
+    }
+    
+    // Load KaTeX CSS
+    if (!document.querySelector('link[href*="katex"]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css';
+      document.head.appendChild(link);
+    }
+    
+    // Load KaTeX JS
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';
+    script.onload = () => resolve(window.katex);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+  
+  return katexPromise;
+}
+
+// Preload KaTeX on page load
+if (typeof window !== 'undefined') {
+  setTimeout(() => loadKatex().catch(() => {}), 500);
+}
+
+/**
+ * Render math formulas in HTML string
+ * Handles both $$block$$ and $inline$ formulas
+ */
+function renderMath(html) {
+  if (!window.katex) return html;
+  
+  // Render block math: $$...$$
+  html = html.replace(/\$\$([\s\S]+?)\$\$/g, (match, formula) => {
+    try {
+      return window.katex.renderToString(formula.trim(), {
+        displayMode: true,
+        throwOnError: false,
+        errorColor: '#ef4444',
+      });
+    } catch (err) {
+      return `<span style="color:#ef4444">Math error: ${err.message}</span>`;
+    }
+  });
+  
+  // Render inline math: $...$
+  // Careful regex to avoid matching things like "$5 and $10"
+  html = html.replace(/(?<!\$)\$([^\$\n]+?)\$(?!\$)/g, (match, formula) => {
+    try {
+      return window.katex.renderToString(formula.trim(), {
+        displayMode: false,
+        throwOnError: false,
+        errorColor: '#ef4444',
+      });
+    } catch (err) {
+      return match; // Keep original if can't parse
+    }
+  });
+  
+  return html;
+}
+
+// ──────────────────────────────────────────────────────────────────────
 // Load marked from CDN (no npm install needed)
 // ──────────────────────────────────────────────────────────────────────
 let markedPromise = null;
@@ -238,27 +312,45 @@ async function renderMermaidInto(element, chart) {
 }
 
 // ──────────────────────────────────────────────────────────────────────
-// Parse markdown with marked
-// Extract ANY code block, then check if it's mermaid (more robust)
+// Parse markdown with marked + KaTeX for math
+// Extract code blocks & math BEFORE parsing to protect them
 // ──────────────────────────────────────────────────────────────────────
 async function parseMarkdownFast(content) {
   if (!content) return { html: '', mermaidBlocks: [] };
   
   const mermaidBlocks = [];
+  const mathBlocks = [];  // Protected math formulas
   
-  // Robust regex: matches any fenced code block with optional language
-  // - Handles \r\n (Windows) and \n (Unix) line endings
-  // - Allows any language identifier
-  // - Allows trailing whitespace after closing ```
+  // ── STEP 1: Extract math BEFORE marked touches it ─────────────────────
+  // Protect $$...$$ block math first
+  let processedContent = content.replace(
+    /\$\$([\s\S]+?)\$\$/g,
+    (match, formula) => {
+      const id = mathBlocks.length;
+      mathBlocks.push({ formula: formula.trim(), block: true });
+      return `\n\n<div data-math-id="${id}"></div>\n\n`;
+    }
+  );
+  
+  // Protect $...$ inline math (avoid matching $5 and $10)
+  processedContent = processedContent.replace(
+    /(?<![\$\w])\$([^\$\n]+?)\$(?![\$\w])/g,
+    (match, formula) => {
+      const id = mathBlocks.length;
+      mathBlocks.push({ formula: formula.trim(), block: false });
+      return `<span data-math-id="${id}"></span>`;
+    }
+  );
+  
+  // ── STEP 2: Extract mermaid code blocks ───────────────────────────────
   const codeBlockRegex = /```([a-zA-Z0-9_+-]*)[ \t]*\r?\n([\s\S]*?)\r?\n[ \t]*```/g;
   
-  const processedContent = content.replace(
+  processedContent = processedContent.replace(
     codeBlockRegex,
     (match, lang, code) => {
       const trimmed = (code || '').trim();
       const langLower = (lang || '').toLowerCase();
       
-      // Detect mermaid by language tag OR by content
       const isMermaid = 
           langLower === 'mermaid' || 
           trimmed.startsWith('flowchart ') ||
@@ -280,15 +372,47 @@ async function parseMarkdownFast(content) {
       if (isMermaid) {
         const id = mermaidBlocks.length;
         mermaidBlocks.push(trimmed);
-        // Wrap with newlines so marked treats it as block-level HTML
         return `\n\n<div data-mermaid-id="${id}" class="mermaid-placeholder"></div>\n\n`;
       }
-      return match; // Keep as-is if not mermaid
+      return match;
     }
   );
   
+  // ── STEP 3: Parse markdown ────────────────────────────────────────────
   const marked = await loadMarked();
-  const html = marked.parse(processedContent);
+  let html = marked.parse(processedContent);
+  
+  // ── STEP 4: Render math with KaTeX ────────────────────────────────────
+  if (mathBlocks.length > 0) {
+    try {
+      await loadKatex();
+    } catch (err) {
+      console.warn('KaTeX failed to load:', err);
+    }
+    
+    // Replace math placeholders with rendered KaTeX
+    html = html.replace(
+      /<(div|span) data-math-id="(\d+)"><\/(div|span)>/g,
+      (match, tag, id) => {
+        const mathData = mathBlocks[parseInt(id, 10)];
+        if (!mathData) return match;
+        
+        if (window.katex) {
+          try {
+            return window.katex.renderToString(mathData.formula, {
+              displayMode: mathData.block,
+              throwOnError: false,
+              errorColor: '#ef4444',
+            });
+          } catch (err) {
+            return `<span style="color:#ef4444">Math error: ${err.message}</span>`;
+          }
+        }
+        // Fallback: show as code
+        return `<code style="color:#e06c75">$${mathData.block ? '$' : ''}${mathData.formula}${mathData.block ? '$' : ''}$</code>`;
+      }
+    );
+  }
   
   return { html, mermaidBlocks };
 }
