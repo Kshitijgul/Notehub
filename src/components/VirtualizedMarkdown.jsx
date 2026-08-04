@@ -343,35 +343,65 @@ async function parseMarkdownFast(content) {
   );
   
   // ── STEP 2: Extract mermaid code blocks ───────────────────────────────
-  const codeBlockRegex = /```([a-zA-Z0-9_+-]*)[ \t]*\r?\n([\s\S]*?)\r?\n[ \t]*```/g;
+  // More lenient regex - handles various line endings and edge cases
+  const codeBlockRegex = /```([a-zA-Z0-9_+\-.]*)[ \t]*\r?\n([\s\S]*?)```/g;
+  
+  // All valid mermaid language tags
+  const MERMAID_LANGUAGES = new Set([
+    'mermaid', 'flowchart', 'graph', 'sequencediagram', 'classdiagram',
+    'statediagram', 'erdiagram', 'gantt', 'pie', 'gitgraph', 'mindmap',
+    'journey', 'timeline', 'quadrantchart', 'requirementdiagram',
+    'sankey', 'block', 'c4context', 'zenuml', 'xy-chart',
+  ]);
+  
+  // Content patterns that indicate mermaid
+  const MERMAID_START_PATTERNS = [
+    /^flowchart[\s\r\n]/i,
+    /^graph[\s\r\n]/i,
+    /^sequenceDiagram/i,
+    /^classDiagram/i,
+    /^stateDiagram/i,
+    /^erDiagram/i,
+    /^gantt/i,
+    /^pie[\s\r\n]/i,
+    /^gitGraph/i,
+    /^mindmap/i,
+    /^journey/i,
+    /^timeline/i,
+    /^%%\{[\s\S]*?%%[\s\r\n]*(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram)/i,
+  ];
   
   processedContent = processedContent.replace(
     codeBlockRegex,
     (match, lang, code) => {
       const trimmed = (code || '').trim();
-      const langLower = (lang || '').toLowerCase();
+      const langLower = (lang || '').toLowerCase().trim();
       
-      const isMermaid = 
-          langLower === 'mermaid' || 
-          trimmed.startsWith('flowchart ') ||
-          trimmed.startsWith('flowchart\n') ||
-          trimmed.startsWith('graph ') ||
-          trimmed.startsWith('graph\n') ||
-          trimmed.startsWith('sequenceDiagram') ||
-          trimmed.startsWith('classDiagram') ||
-          trimmed.startsWith('stateDiagram') ||
-          trimmed.startsWith('erDiagram') ||
-          trimmed.startsWith('gantt') ||
-          trimmed.startsWith('pie') ||
-          trimmed.startsWith('gitGraph') ||
-          trimmed.startsWith('mindmap') ||
-          trimmed.startsWith('journey') ||
-          trimmed.startsWith('timeline') ||
-          /^%%\{[\s\S]*?%%\s*\r?\n?\s*(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram)/.test(trimmed);
+      // Check by language tag (e.g., ```mermaid, ```flowchart, ```graph)
+      const isLangMermaid = MERMAID_LANGUAGES.has(langLower);
+      
+      // Check by content (auto-detect even without lang tag)
+      const isContentMermaid = MERMAID_START_PATTERNS.some(pattern => pattern.test(trimmed));
+      
+      const isMermaid = isLangMermaid || isContentMermaid;
       
       if (isMermaid) {
+        // If lang tag is flowchart/graph/etc but content doesn't start with it,
+        // we need to prepend the lang tag for mermaid to parse it correctly
+        let mermaidCode = trimmed;
+        if (isLangMermaid && langLower !== 'mermaid' && !isContentMermaid) {
+          // e.g., ```flowchart\nTD\n... → prepend "flowchart TD\n..."
+          mermaidCode = `${langLower === 'sequencediagram' ? 'sequenceDiagram' : 
+                          langLower === 'classdiagram' ? 'classDiagram' :
+                          langLower === 'statediagram' ? 'stateDiagram' :
+                          langLower === 'erdiagram' ? 'erDiagram' :
+                          langLower === 'gitgraph' ? 'gitGraph' :
+                          langLower} ${trimmed}`;
+        }
+        
         const id = mermaidBlocks.length;
-        mermaidBlocks.push(trimmed);
+        mermaidBlocks.push(mermaidCode);
+        console.log(`[Mermaid] Detected diagram (lang: "${langLower}", content start: "${trimmed.substring(0, 30)}...")`);
         return `\n\n<div data-mermaid-id="${id}" class="mermaid-placeholder"></div>\n\n`;
       }
       return match;
